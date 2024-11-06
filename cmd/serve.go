@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"context"
 	"github.com/spf13/cobra"
+	"golang_template/app"
 	"log"
 )
 
@@ -18,4 +20,6 @@ func init() {
 
 func serve(cmd *cobra.Command, args []string) {
 	log.Println("serve")
+	application := app.NewApplication(context.TODO())
+	application.Setup()
 }
