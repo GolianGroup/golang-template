@@ -6,6 +6,7 @@ import (
 )
 
 type UserService interface {
+	Login(user dto.User)
 }
 
 type userService struct {

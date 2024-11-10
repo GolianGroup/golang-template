@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"context"
-	"github.com/spf13/cobra"
 	"golang_template/app"
 	"log"
+
+	"github.com/spf13/cobra"
 )
 
 var serveCmd = &cobra.Command{

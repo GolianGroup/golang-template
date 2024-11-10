@@ -1,21 +1,21 @@
 package controllers
 
-import "github.com/gofiber/fiber/v3"
+import "github.com/gofiber/fiber/v2"
 
-type UserController interface {
-	Login(ctx fiber.Ctx) error
+type IUserController interface {
+	Login(ctx *fiber.Ctx) error
 }
 
-type userController struct {
+type UserController struct {
 }
 
 // inject user service to user controller
 
-func NewUserController() UserController {
-	return &userController{}
+func NewUserController() IUserController {
+	return &UserController{}
 }
 
-func (c userController) Login(ctx fiber.Ctx) error {
+func (c *UserController) Login(ctx *fiber.Ctx) error {
 	err := ctx.JSON("succeed")
 	if err != nil {
 		return err

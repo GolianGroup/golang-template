@@ -2,10 +2,12 @@ package app
 
 import (
 	"context"
-	"github.com/gofiber/fiber/v3"
-	"go.uber.org/fx"
 	"golang_template/handler/routers"
+	"golang_template/internal/utils"
 	"log"
+
+	"github.com/gofiber/fiber/v2"
+	"go.uber.org/fx"
 )
 
 type Application interface {
@@ -13,18 +15,25 @@ type Application interface {
 }
 
 type application struct {
-	ctx context.Context
+	ctx    context.Context
+	config *utils.Config
 	//viper config
 }
 
 func NewApplication(ctx context.Context) Application {
-	return &application{ctx: ctx}
+	return &application{ctx: ctx, config: nil}
 }
 
 // bootstrap
 
 func (a *application) Setup() {
 	//viper
+	config, err := utils.SetupViper("config/config.yml")
+	a.config = config
+
+	if err != nil {
+		log.Fatalf("failed to setup viper: %s", err.Error())
+	}
 	app := fx.New(
 		fx.Provide(
 			a.InitRouter,
@@ -33,9 +42,8 @@ func (a *application) Setup() {
 			a.InitServices,
 			a.InitRepositories,
 		),
-		fx.Invoke(func(app *fiber.App, router routers.Router) {
-			router.Handle()
-			log.Fatal(app.Listen(":3000"))
+		fx.Invoke(func(app *fiber.App, router routers.IRouter) {
+			log.Fatal(app.Listen(a.config.Server.Host + ":" + a.config.Server.Port))
 		}),
 	)
 	app.Run()

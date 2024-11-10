@@ -1,30 +1,30 @@
 package routers
 
 import (
-	"github.com/gofiber/fiber/v3"
 	"golang_template/handler/controllers"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-type Router interface {
-	Handle()
+type IRouter interface {
+	AddRoutes(router fiber.Router)
 }
 
-type router struct {
-	app        *fiber.App
-	controller controllers.UserController
+type Router struct {
+	userRouter IUserRouter
 }
 
-func NewRouter(app *fiber.App, controller controllers.UserController) Router {
-	return &router{app: app, controller: controller}
+func NewRouter(controllers controllers.IControllers) IRouter {
+	userRouter := NewUserRouter(controllers.GetUserController())
+	return &Router{userRouter: userRouter}
 }
 
-func (r router) Handle() {
+func (r Router) AddRoutes(router fiber.Router) {
+
 	// router
 	// init user router, etc ...
 	// rate limiter
 	// CORS
-	//
-	uRouter := NewUserRouter(r.app, r.controller)
-	uRouter.Handle()
+	r.userRouter.AddRoutes(router)
 
 }

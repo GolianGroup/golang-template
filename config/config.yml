@@ -1,0 +1,24 @@
+server:
+  port: "8080"
+  host: "0.0.0.0"
+  mode: "development"
+
+db:
+  host: "localhost"
+  port: "5432"
+  user: "postgres"
+  password: "postgres"
+  dbname: "myapp"
+  sslmode: "disable"
+
+redis:
+  host: "localhost"
+  port: "6379"
+  password: ""
+  db: 0
+
+jwt:
+  secret: "your-secret-key"
+  expire_hour: 24
+
+log_level: "info" 

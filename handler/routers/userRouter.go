@@ -1,25 +1,25 @@
 package routers
 
 import (
-	"github.com/gofiber/fiber/v3"
 	"golang_template/handler/controllers"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-type UserRouter interface {
-	Handle()
+type IUserRouter interface {
+	AddRoutes(router fiber.Router)
 }
 
-type userRouter struct {
-	app        *fiber.App
-	controller controllers.UserController
+type UserRouter struct {
+	Controller controllers.IUserController
 }
 
-func NewUserRouter(app *fiber.App, userController controllers.UserController) UserRouter {
-	return &userRouter{app: app, controller: userController}
+func NewUserRouter(userController controllers.IUserController) IUserRouter {
+	return &UserRouter{Controller: userController}
 }
 
-func (r userRouter) Handle() {
-	//init routes for user
+func (r UserRouter) AddRoutes(router fiber.Router) {
+	// init routes for user
 	// has controller
-	r.app.Get("/user", r.controller.Login)
+	router.Get("/user", r.Controller.Login)
 }
