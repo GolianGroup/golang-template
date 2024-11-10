@@ -1,18 +1,18 @@
 package controllers
 
-type IControllers interface {
-	GetUserController() IUserController
+type Controllers interface {
+	GetUserController() UserController
 }
 
-type Controllers struct {
-	userController IUserController
+type controllers struct {
+	userController UserController
 }
 
-func NewControllers() IControllers {
+func NewControllers() Controllers {
 	userController := NewUserController()
-	return &Controllers{userController: userController}
+	return &controllers{userController: userController}
 }
 
-func (c *Controllers) GetUserController() IUserController {
+func (c *controllers) GetUserController() UserController {
 	return c.userController
 }

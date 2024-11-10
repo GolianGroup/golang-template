@@ -6,19 +6,19 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type IUserRouter interface {
+type UserRouter interface {
 	AddRoutes(router fiber.Router)
 }
 
-type UserRouter struct {
-	Controller controllers.IUserController
+type userRouter struct {
+	Controller controllers.UserController
 }
 
-func NewUserRouter(userController controllers.IUserController) IUserRouter {
-	return &UserRouter{Controller: userController}
+func NewUserRouter(userController controllers.UserController) UserRouter {
+	return &userRouter{Controller: userController}
 }
 
-func (r UserRouter) AddRoutes(router fiber.Router) {
+func (r userRouter) AddRoutes(router fiber.Router) {
 	// init routes for user
 	// has controller
 	router.Get("/user", r.Controller.Login)

@@ -42,7 +42,7 @@ func (a *application) Setup() {
 			a.InitServices,
 			a.InitRepositories,
 		),
-		fx.Invoke(func(app *fiber.App, router routers.IRouter) {
+		fx.Invoke(func(app *fiber.App, router routers.Router) {
 			log.Fatal(app.Listen(a.config.Server.Host + ":" + a.config.Server.Port))
 		}),
 	)
