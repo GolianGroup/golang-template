@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"master/internal/di"
+	"os"
 )
 
 // RootCmd represents the base command when called without any subcommands
@@ -12,9 +12,8 @@ var RootCmd = &cobra.Command{
 }
 
 func Execute() {
-	di.Start()
-	//err := RootCmd.Execute()
-	//if err != nil {
-	//	os.Exit(1)
-	//}
+	err := RootCmd.Execute()
+	if err != nil {
+		os.Exit(1)
+	}
 }
