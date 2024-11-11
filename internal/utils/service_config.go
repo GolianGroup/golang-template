@@ -29,6 +29,8 @@ type DatabaseConfig struct {
 	Password string `mapstructure:"password"`
 	DBName   string `mapstructure:"dbname"`
 	SSLMode  string `mapstructure:"sslmode"`
+	MaxConns int    `mapstructure:"max_conns"`
+	MinConns int    `mapstructure:"min_conns"`
 }
 
 type RedisConfig struct {
@@ -92,4 +94,10 @@ func SetViperEnvMappings() {
 	viper.BindEnv("jwt.expire_hour", "APP_JWT_EXPIRE_HOUR")
 
 	viper.BindEnv("log_level", "APP_LOG_LEVEL")
+}
+
+func GetDSN(config *DatabaseConfig) string {
+	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		config.Host, config.Port, config.User, config.Password, config.DBName, config.SSLMode)
+	return dsn
 }
