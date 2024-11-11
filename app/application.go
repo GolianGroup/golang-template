@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"golang_template/handler/routers"
+	"golang_template/internal/database"
 	"golang_template/internal/utils"
 	"log"
 
@@ -27,21 +28,34 @@ func NewApplication(ctx context.Context) Application {
 // bootstrap
 
 func (a *application) Setup() {
-	//viper
 	config, err := utils.SetupViper("config/config.yml")
 	a.config = config
 
 	if err != nil {
 		log.Fatalf("failed to setup viper: %s", err.Error())
 	}
+
 	app := fx.New(
 		fx.Provide(
+			a.InitDatabase,
 			a.InitRouter,
 			a.InitFramework,
 			a.InitController,
 			a.InitServices,
 			a.InitRepositories,
 		),
+		fx.Invoke(func(lc fx.Lifecycle, db *database.Database) {
+			lc.Append(fx.Hook{
+				OnStart: func(ctx context.Context) error {
+					// Run auto migrations
+					return db.Client.Schema.Create(ctx)
+				},
+				OnStop: func(ctx context.Context) error {
+					db.Close()
+					return nil
+				},
+			})
+		}),
 		fx.Invoke(func(app *fiber.App, router routers.Router) {
 			log.Fatal(app.Listen(a.config.Server.Host + ":" + a.config.Server.Port))
 		}),

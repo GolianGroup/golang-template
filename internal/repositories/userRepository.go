@@ -7,13 +7,16 @@ type UserRepository interface {
 }
 
 type userRepository struct {
+	client *ent.Client
 }
 
-func NewUserRepository() UserRepository {
-	return &userRepository{}
+func NewUserRepository(client *ent.Client) UserRepository {
+	return &userRepository{client: client}
 }
 
 // dto
-func (r userRepository) Get(user dto.User) {
-
+func (r *userRepository) Get(user dto.User) {
+	// Use ent client for queries
+	// Example:
+	// user, err := r.client.User.Query().Where(user.Name(user.Username)).First(ctx)
 }
