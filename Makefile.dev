@@ -1,0 +1,4 @@
+run_server:
+		echo "Running development server..."
+
+.PHONY: run_server

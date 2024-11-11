@@ -1,0 +1,42 @@
+# Load environment variables from .env file
+include .env
+export $(shell sed 's/=.*//' .env)
+
+# Variables
+ENT_CMD=entgo.io/ent/cmd/ent
+ATLAS_CMD=ariga.io/atlas/cmd/atlas
+SCHEMA_DIR=internal/models/schema
+MIGRATIONS_DIR=internal/models/migrate/migrations
+
+# Generate Ent schema and models
+generate_ent:
+	go generate ./internal/pkg/models
+
+# Create a new SQL migration
+generate_sql_migration:
+	@[ -n "$(name)" ] || (echo "Error: name variable is required. Usage: make generate_sql_migration name=my_custom_migration"; exit 1)
+	atlas migrate diff "$(name)" \
+		--dir "file://$(MIGRATIONS_DIR)" \
+		--to "ent://${SCHEMA_DIR}" \
+		--dev-url "$(DEV_URL)"
+
+# Apply migrations to the database
+apply_migration:
+	atlas migrate apply \
+		--dir "file://$(MIGRATIONS_DIR)" \
+		--url "$(DB_URL)"
+
+# Check the status of migrations
+status_migration:
+	atlas migrate status \
+		--dir "file://$(MIGRATIONS_DIR)" \
+		--url "$(DB_URL)"
+
+# Rollback the last migration
+rollback_migration:
+	atlas migrate down \
+		--dir "file://$(MIGRATIONS_DIR)" \
+		--url "$(DB_URL)" \
+		--dev-url "$(DEV_URL)"
+
+.PHONY: generate_ent generate_sql_migration apply_migration status_migration rollback_migration
