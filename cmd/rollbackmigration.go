@@ -49,7 +49,7 @@ var rollbackmigrationCmd = &cobra.Command{
 		}
 		defer db.Close()
 
-		migration := database.NewMigration(db.DB)
+		migration := database.NewMigration(db.DB())
 		err = migration.RollbackMigrations(dirFlag, versionFlag)
 		if err != nil {
 			cmd.PrintErrf("Error while rolling back migrations:\n\t %v", err)

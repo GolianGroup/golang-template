@@ -14,19 +14,19 @@ type UserRepository interface {
 }
 
 type userRepository struct {
-	client *ent.Client
-	ctx    *context.Context
+	db  database.Database
+	ctx *context.Context
 }
 
-func NewUserRepository(db *database.Database, ctx *context.Context) UserRepository {
+func NewUserRepository(db database.Database, ctx *context.Context) UserRepository {
 	return &userRepository{
-		client: db.Client,
-		ctx:    ctx,
+		db:  db,
+		ctx: ctx,
 	}
 }
 
 func (r userRepository) Get(userDto dto.User) (*ent.User, error) {
-	userData, err := r.client.User.
+	userData, err := r.db.EntClient().User.
 		Query().
 		Where(user.Username(userDto.Username), user.Password(userDto.Password)).
 		First(*r.ctx)
@@ -37,7 +37,7 @@ func (r userRepository) Get(userDto dto.User) (*ent.User, error) {
 }
 
 func (r userRepository) CreateUser(userData dto.User) error {
-	_, err := r.client.User.
+	_, err := r.db.EntClient().User.
 		Create().
 		SetUsername(userData.Username).
 		SetPassword(userData.Password).

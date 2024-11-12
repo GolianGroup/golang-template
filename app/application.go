@@ -44,7 +44,7 @@ func (a *application) Setup() {
 			a.InitServices,
 			a.InitRepositories,
 		),
-		fx.Invoke(func(lc fx.Lifecycle, db *database.Database) {
+		fx.Invoke(func(lc fx.Lifecycle, db database.Database) {
 			lc.Append(fx.Hook{
 				OnStop: func(ctx context.Context) error {
 					db.Close()

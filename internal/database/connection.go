@@ -13,13 +13,19 @@ import (
 	"github.com/jackc/pgx/v5/stdlib"
 )
 
-type Database struct {
-	Pool   *pgxpool.Pool
-	DB     *dbsql.DB
-	Client *ent.Client
+type Database interface {
+	Close()
+	EntClient() *ent.Client
+	DB() *dbsql.DB
 }
 
-func NewDatabase(ctx context.Context, config *utils.DatabaseConfig) (*Database, error) {
+type database struct {
+	pool     *pgxpool.Pool
+	database *dbsql.DB
+	client   *ent.Client
+}
+
+func NewDatabase(ctx context.Context, config *utils.DatabaseConfig) (Database, error) {
 	poolConfig, err := pgxpool.ParseConfig(utils.GetDSN(config))
 	if err != nil {
 		return nil, err
@@ -43,14 +49,22 @@ func NewDatabase(ctx context.Context, config *utils.DatabaseConfig) (*Database, 
 	// Create ent client
 	client := ent.NewClient(ent.Driver(driver))
 
-	return &Database{
-		Pool:   pool,
-		DB:     db,
-		Client: client,
+	return &database{
+		pool:     pool,
+		database: db,
+		client:   client,
 	}, nil
 }
 
-func (db *Database) Close() {
-	db.Client.Close()
-	db.Pool.Close()
+func (db *database) Close() {
+	db.client.Close()
+	db.pool.Close()
+}
+
+func (db *database) EntClient() *ent.Client {
+	return db.client
+}
+
+func (db *database) DB() *dbsql.DB {
+	return db.database
 }

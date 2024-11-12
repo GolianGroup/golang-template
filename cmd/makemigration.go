@@ -58,7 +58,7 @@ var makemigrationCmd = &cobra.Command{
 		}
 		defer db.Close()
 
-		migration := database.NewMigration(db.DB)
+		migration := database.NewMigration(db.DB())
 		err = migration.CreateMigrationFile(dirFlag, name, typeFlag)
 		if err != nil {
 			cmd.PrintErrf("Error while creating migration file:\n\t %v", err)

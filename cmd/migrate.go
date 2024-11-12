@@ -53,7 +53,7 @@ var migrateCmd = &cobra.Command{
 		}
 		defer db.Close()
 
-		migration := database.NewMigration(db.DB)
+		migration := database.NewMigration(db.DB())
 		err = migration.ApplyMigrations(dirFlag, versionFlag, fakeFlag)
 		if err != nil {
 			cmd.PrintErrf("Error while applying migrations:\n\t %v", err)

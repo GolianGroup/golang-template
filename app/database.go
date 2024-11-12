@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func (a *application) InitDatabase() *database.Database {
+func (a *application) InitDatabase() database.Database {
 	db, err := database.NewDatabase(a.ctx, &a.config.DB)
 	if err != nil {
 		log.Fatalf("failed to setup database: %s", err)
