@@ -2,8 +2,10 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"golang_template/internal/ent"
 	"golang_template/internal/utils"
+	"time"
 
 	dbsql "database/sql"
 
@@ -14,7 +16,7 @@ import (
 )
 
 type Database interface {
-	Close()
+	Close() error
 	EntClient() *ent.Client
 	DB() *dbsql.DB
 }
@@ -26,6 +28,16 @@ type database struct {
 }
 
 func NewDatabase(ctx context.Context, config *utils.DatabaseConfig) (Database, error) {
+
+	if config == nil {
+		return nil, fmt.Errorf("database config cannot be nil")
+	}
+
+	// Validate config values
+	if config.MaxConns < config.MinConns {
+		return nil, fmt.Errorf("maxConns must be greater than or equal to minConns")
+	}
+
 	poolConfig, err := pgxpool.ParseConfig(utils.GetDSN(config))
 	if err != nil {
 		return nil, err
@@ -35,10 +47,18 @@ func NewDatabase(ctx context.Context, config *utils.DatabaseConfig) (Database, e
 	poolConfig.MaxConns = int32(config.MaxConns)
 	poolConfig.MinConns = int32(config.MinConns)
 
-	// Create pool
-	pool, err := pgxpool.NewWithConfig(ctx, poolConfig)
+	timeoutCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	pool, err := pgxpool.NewWithConfig(timeoutCtx, poolConfig)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("creating pool: %w", err)
+	}
+
+	// Test connection
+	if err := pool.Ping(ctx); err != nil {
+		pool.Close()
+		return nil, fmt.Errorf("pinging database: %w", err)
 	}
 
 	db := stdlib.OpenDB(*pool.Config().ConnConfig)
@@ -56,9 +76,22 @@ func NewDatabase(ctx context.Context, config *utils.DatabaseConfig) (Database, e
 	}, nil
 }
 
-func (db *database) Close() {
-	db.client.Close()
+func (db *database) Close() error {
+	var errs []error
+
+	if err := db.client.Close(); err != nil {
+		errs = append(errs, fmt.Errorf("closing ent client: %w", err))
+	}
+
 	db.pool.Close()
+	if err := db.database.Close(); err != nil {
+		errs = append(errs, fmt.Errorf("closing database: %w", err))
+	}
+
+	if len(errs) > 0 {
+		return fmt.Errorf("closing database: %v", errs)
+	}
+	return nil
 }
 
 func (db *database) EntClient() *ent.Client {

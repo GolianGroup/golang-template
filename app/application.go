@@ -47,7 +47,7 @@ func (a *application) Setup() {
 		fx.Invoke(func(lc fx.Lifecycle, db database.Database) {
 			lc.Append(fx.Hook{
 				OnStop: func(ctx context.Context) error {
-					db.Close()
+					log.Println(db.Close())
 					return nil
 				},
 			})
