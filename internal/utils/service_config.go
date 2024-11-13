@@ -35,7 +35,7 @@ type RedisConfig struct {
 	Host     string `mapstructure:"host"`
 	Port     string `mapstructure:"port"`
 	Password string `mapstructure:"password"`
-	DB       int    `mapstructure:"db"`
+	DB       string `mapstructure:"db"`
 }
 
 type JWTConfig struct {
@@ -92,4 +92,10 @@ func SetViperEnvMappings() {
 	viper.BindEnv("jwt.expire_hour", "APP_JWT_EXPIRE_HOUR")
 
 	viper.BindEnv("log_level", "APP_LOG_LEVEL")
+}
+
+func GetDSNRedis(config *RedisConfig) string {
+	dsn := fmt.Sprintf("redis://%s:%s/%s",
+		config.Host, config.Port, config.DB)
+	return dsn
 }
