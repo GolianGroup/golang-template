@@ -18,7 +18,7 @@ type userRepository struct {
 	ctx *context.Context
 }
 
-func NewUserRepository(db database.Database, ctx *context.Context) UserRepository {
+func NewUserRepository(ctx *context.Context, db database.Database) UserRepository {
 	return &userRepository{
 		db:  db,
 		ctx: ctx,

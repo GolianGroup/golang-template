@@ -29,12 +29,12 @@ func NewApplication(ctx context.Context, config *config.Config) Application {
 func (a *application) Setup() {
 	app := fx.New(
 		fx.Provide(
-			a.InitDatabase,
 			a.InitRouter,
 			a.InitFramework,
 			a.InitController,
 			a.InitServices,
 			a.InitRepositories,
+			a.InitDatabase,
 		),
 		fx.Invoke(func(lc fx.Lifecycle, db database.Database) {
 			lc.Append(fx.Hook{
