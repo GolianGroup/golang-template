@@ -6,6 +6,8 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 // LoadConfig loads configuration from file and environment variables
@@ -48,4 +50,49 @@ func GetDSN(cfg *DatabaseConfig) string {
 // GetRedisAddr returns redis connection address
 func GetRedisAddr(cfg *RedisConfig) string {
 	return fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
+}
+
+// NewProductionEncoderConfig returns an opinionated EncoderConfig for
+// production environments.
+//
+// for more information about fields check the documentation
+func NewLoggerEncoderConfig(cfg *LoggerEncoderConfig) zapcore.EncoderConfig {
+	return zapcore.EncoderConfig{
+		TimeKey:        "ts",
+		LevelKey:       cfg.LevelKey, // The logging level (e.g. "info", "error").
+		NameKey:        cfg.NameKey,
+		CallerKey:      "caller",
+		FunctionKey:    zapcore.OmitKey,
+		MessageKey:     cfg.MessageKey, // The message passed to the log statement.
+		StacktraceKey:  "stacktrace",
+		LineEnding:     zapcore.DefaultLineEnding,
+		EncodeLevel:    zapcore.LowercaseLevelEncoder,
+		EncodeTime:     zapcore.EpochTimeEncoder,
+		EncodeDuration: zapcore.SecondsDurationEncoder,
+		EncodeCaller:   zapcore.ShortCallerEncoder,
+	}
+}
+
+// NewProductionConfig builds a reasonable default production logging
+// configuration.
+//
+// for more information about fields check the documentation
+func NewLoggerConfig(cfg *LoggerConfig) zap.Config {
+	// Ignore the error because we check that the levels are valid during configuration loading.
+	level, _ := zapcore.ParseLevel(cfg.Level)
+
+	logger := zap.Config{
+		Level:       zap.NewAtomicLevelAt(level),
+		Development: false,
+		Sampling: &zap.SamplingConfig{
+			Initial:    cfg.Sampling.Initial,
+			Thereafter: cfg.Sampling.Thereafter,
+		},
+		Encoding:         cfg.Encoding,
+		EncoderConfig:    NewLoggerEncoderConfig(&cfg.EncoderConfig),
+		OutputPaths:      cfg.OutputPaths,
+		ErrorOutputPaths: cfg.ErrOutoutPaths,
+	}
+
+	return logger
 }
