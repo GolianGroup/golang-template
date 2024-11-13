@@ -41,6 +41,7 @@ func (a *application) Setup() {
 			a.InitController,
 			a.InitServices,
 			a.InitRepositories,
+			a.InitRedis,
 		),
 		fx.Invoke(func(app *fiber.App, router routers.Router) {
 			log.Fatal(app.Listen(a.config.Server.Host + ":" + a.config.Server.Port))
