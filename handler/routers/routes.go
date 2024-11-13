@@ -1,9 +1,8 @@
 package routers
 
 import (
-	"golang_template/handler/controllers"
-
 	"github.com/gofiber/fiber/v2"
+	"golang_template/handler/controllers"
 )
 
 type Router interface {
@@ -11,12 +10,16 @@ type Router interface {
 }
 
 type router struct {
-	userRouter UserRouter
+	userRouter    UserRouter
+	monitorRouter MonitorRouter
 }
 
 func NewRouter(controllers controllers.Controllers) Router {
 	userRouter := NewUserRouter(controllers.GetUserController())
-	return &router{userRouter: userRouter}
+	monitorRouter := NewMonitorRouter()
+	return &router{userRouter: userRouter,
+		monitorRouter: monitorRouter,
+	}
 }
 
 func (r router) AddRoutes(router fiber.Router) {
@@ -26,5 +29,6 @@ func (r router) AddRoutes(router fiber.Router) {
 	// rate limiter
 	// CORS
 	r.userRouter.AddRoutes(router)
+	r.monitorRouter.AddRoutes(router)
 
 }
