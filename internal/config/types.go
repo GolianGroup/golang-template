@@ -7,6 +7,7 @@ type Config struct {
 	Redis    RedisConfig    `mapstructure:"redis" validate:"required"`
 	JWT      JWTConfig      `mapstructure:"jwt" validate:"required"`
 	LogLevel string         `mapstructure:"log_level" validate:"required,oneof=debug info warn error"`
+	Jaeger   JaegerConfig   `mapstructure:"jaeger" validate:"required"`
 }
 
 // ServerConfig holds all server related configuration
@@ -46,4 +47,10 @@ type JWTConfig struct {
 	Secret           string `mapstructure:"secret" validate:"required,min=32"`
 	ExpireHour       int    `mapstructure:"expire_hour" validate:"required,min=1"`
 	RefreshExpireDay int    `mapstructure:"refresh_expire_day" validate:"required,min=1"`
+}
+
+// JaegerConfig holds all Jaeger tracing configuration
+type JaegerConfig struct {
+	Endpoint string `mapstructure:"endpoint" validate:"required,url"`
+	Service  string `mapstructure:"service" validate:"required"`
 }
