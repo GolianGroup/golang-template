@@ -18,7 +18,7 @@ type router struct {
 }
 
 func NewRouter(controllers controllers.Controllers, redisClient producers.RedisClient) Router {
-	userRouter := NewUserRouter(controllers.GetUserController(), redisClient)
+	userRouter := NewUserRouter(controllers.UserController(), redisClient)
 	return &router{userRouter: userRouter, redisClient: redisClient}
 }
 
