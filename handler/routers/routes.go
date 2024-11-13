@@ -15,7 +15,7 @@ type router struct {
 }
 
 func NewRouter(controllers controllers.Controllers) Router {
-	userRouter := NewUserRouter(controllers.GetUserController())
+	userRouter := NewUserRouter(controllers.UserController())
 	monitorRouter := NewMonitorRouter()
 	return &router{userRouter: userRouter,
 		monitorRouter: monitorRouter,

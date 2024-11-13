@@ -1,7 +1,7 @@
 package controllers
 
 type Controllers interface {
-	GetUserController() UserController
+	UserController() UserController
 }
 
 type controllers struct {
@@ -13,6 +13,6 @@ func NewControllers() Controllers {
 	return &controllers{userController: userController}
 }
 
-func (c *controllers) GetUserController() UserController {
+func (c *controllers) UserController() UserController {
 	return c.userController
 }

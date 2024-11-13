@@ -5,6 +5,6 @@ import (
 	"golang_template/internal/repositories"
 )
 
-func (a *application) InitRepositories(db database.Database) repositories.UserRepository {
-	return repositories.NewUserRepository(&a.ctx, db)
+func (a *application) InitRepositories(db database.Database) repositories.Repository {
+	return repositories.NewRepository(db)
 }
