@@ -1,9 +1,10 @@
 package producers
 
 import (
-	"golang_template/internal/utils"
 	"log"
 	"time"
+
+	"golang_template/internal/config"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -17,8 +18,9 @@ type Redis struct {
 	client *redis.Client
 }
 
-func NewRedis(config *utils.RedisConfig) RedisClient {
-	addr := utils.GetDSNRedis(config)
+func NewRedis(cfg *config.RedisConfig) RedisClient {
+	addr := config.GetRedisAddr(cfg)
+
 	opt, err := redis.ParseURL(addr)
 	if err != nil {
 		log.Fatal(err)

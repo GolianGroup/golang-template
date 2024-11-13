@@ -35,7 +35,7 @@ type RedisConfig struct {
 	Host         string `mapstructure:"host" validate:"required,hostname|ip"`
 	Port         string `mapstructure:"port" validate:"required,number"`
 	Password     string `mapstructure:"password"`
-	DB           int    `mapstructure:"db" validate:"min=0"`
+	DB           string `mapstructure:"db" validate:"required,string"`
 	MaxRetries   int    `mapstructure:"max_retries" validate:"required,min=1"`
 	PoolSize     int    `mapstructure:"pool_size" validate:"required,min=1"`
 	MinIdleConns int    `mapstructure:"min_idle_conns" validate:"required,min=1"`
