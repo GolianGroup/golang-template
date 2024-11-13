@@ -4,8 +4,8 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"golang_template/internal/config"
 	"golang_template/internal/database"
-	"golang_template/internal/utils"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -39,14 +39,14 @@ var migrateCmd = &cobra.Command{
 			return
 		}
 
-		config, err := utils.SetupViper("config/config.yml")
+		dbConfig, err := config.LoadConfig("config/config.yml")
 
 		if err != nil {
 			log.Fatalf("failed to setup viper: %s", err.Error())
 			return
 		}
 
-		db, err := database.NewDatabase(cmd.Context(), &config.DB)
+		db, err := database.NewDatabase(cmd.Context(), &dbConfig.DB)
 		if err != nil {
 			cmd.PrintErrf("Error while initializing database:\n\t %v", err)
 			return

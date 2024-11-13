@@ -3,8 +3,8 @@ package database
 import (
 	"context"
 	"fmt"
+	"golang_template/internal/config"
 	"golang_template/internal/ent"
-	"golang_template/internal/utils"
 	"time"
 
 	dbsql "database/sql"
@@ -27,25 +27,25 @@ type database struct {
 	client   *ent.Client
 }
 
-func NewDatabase(ctx context.Context, config *utils.DatabaseConfig) (Database, error) {
+func NewDatabase(ctx context.Context, dbConfig *config.DatabaseConfig) (Database, error) {
 
-	if config == nil {
+	if dbConfig == nil {
 		return nil, fmt.Errorf("database config cannot be nil")
 	}
 
 	// Validate config values
-	if config.MaxConns < config.MinConns {
+	if dbConfig.MaxConns < dbConfig.MinConns {
 		return nil, fmt.Errorf("maxConns must be greater than or equal to minConns")
 	}
 
-	poolConfig, err := pgxpool.ParseConfig(utils.GetDSN(config))
+	poolConfig, err := pgxpool.ParseConfig(config.GetDSN(dbConfig))
 	if err != nil {
 		return nil, err
 	}
 
 	// Configure pool
-	poolConfig.MaxConns = int32(config.MaxConns)
-	poolConfig.MinConns = int32(config.MinConns)
+	poolConfig.MaxConns = int32(dbConfig.MaxConns)
+	poolConfig.MinConns = int32(dbConfig.MinConns)
 
 	timeoutCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()

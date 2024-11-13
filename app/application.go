@@ -3,8 +3,8 @@ package app
 import (
 	"context"
 	"golang_template/handler/routers"
+	"golang_template/internal/config"
 	"golang_template/internal/database"
-	"golang_template/internal/utils"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,24 +17,16 @@ type Application interface {
 
 type application struct {
 	ctx    context.Context
-	config *utils.Config
-	//viper config
+	config *config.Config
 }
 
-func NewApplication(ctx context.Context) Application {
-	return &application{ctx: ctx, config: nil}
+func NewApplication(ctx context.Context, config *config.Config) Application {
+	return &application{ctx: ctx, config: config}
 }
 
 // bootstrap
 
 func (a *application) Setup() {
-	config, err := utils.SetupViper("config/config.yml")
-	a.config = config
-
-	if err != nil {
-		log.Fatalf("failed to setup viper: %s", err.Error())
-	}
-
 	app := fx.New(
 		fx.Provide(
 			a.InitDatabase,

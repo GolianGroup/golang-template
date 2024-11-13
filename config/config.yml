@@ -2,6 +2,8 @@ server:
   port: "8080"
   host: "0.0.0.0"
   mode: "development"
+  read_timeout: 10  # seconds
+  write_timeout: 10 # seconds
 
 db:
   host: "localhost"
@@ -10,7 +12,7 @@ db:
   password: "postgres"
   dbname: "myapp"
   sslmode: "disable"
-  max_conns: 10
+  max_conns: 20
   min_conns: 1
 
 redis:
@@ -18,9 +20,13 @@ redis:
   port: "6379"
   password: ""
   db: 0
+  max_retries: 3
+  pool_size: 100
+  min_idle_conns: 10
 
 jwt:
-  secret: "your-secret-key"
+  secret: "your-super-secret-key-should-be-at-least-32-chars"
   expire_hour: 24
+  refresh_expire_day: 7
 
 log_level: "info"

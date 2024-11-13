@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"golang_template/app"
+	"golang_template/internal/config"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -21,6 +22,11 @@ func init() {
 
 func serve(cmd *cobra.Command, args []string) {
 	log.Println("serve")
-	application := app.NewApplication(context.TODO())
+	//viper
+	config, err := config.LoadConfig("config/config.yml")
+	if err != nil {
+		log.Fatalf("failed to setup viper: %s", err.Error())
+	}
+	application := app.NewApplication(context.TODO(), config)
 	application.Setup()
 }
