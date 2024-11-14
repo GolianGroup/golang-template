@@ -2,11 +2,11 @@ package config
 
 // Config holds all configuration for the application
 type Config struct {
-	Server   ServerConfig   `mapstructure:"server" validate:"required"`
-	DB       DatabaseConfig `mapstructure:"db" validate:"required"`
-	Redis    RedisConfig    `mapstructure:"redis" validate:"required"`
-	JWT      JWTConfig      `mapstructure:"jwt" validate:"required"`
-	LogLevel string         `mapstructure:"log_level" validate:"required,oneof=debug info warn error"`
+	Server ServerConfig   `mapstructure:"server" validate:"required"`
+	DB     DatabaseConfig `mapstructure:"db" validate:"required"`
+	Redis  RedisConfig    `mapstructure:"redis" validate:"required"`
+	JWT    JWTConfig      `mapstructure:"jwt" validate:"required"`
+	Logger LoggerConfig   `mapstructure:"logger" validate:"required"`
 }
 
 // ServerConfig holds all server related configuration
@@ -46,4 +46,24 @@ type JWTConfig struct {
 	Secret           string `mapstructure:"secret" validate:"required,min=32"`
 	ExpireHour       int    `mapstructure:"expire_hour" validate:"required,min=1"`
 	RefreshExpireDay int    `mapstructure:"refresh_expire_day" validate:"required,min=1"`
+}
+
+type LoggerConfig struct {
+	Level          string              `mapstructure:"level" validate:"required,oneof=debug info warn error panic"`
+	Encoding       string              `mapstructure:"encoding" validate:"required,oneof=json yaml"`
+	OutputPaths    []string            `mapstructure:"output_paths" validate:"required"`
+	ErrOutoutPaths []string            `mapstructure:"err_output_paths" validate:"required"`
+	EncoderConfig  LoggerEncoderConfig `mapstructure:"encoder_config"`
+	Sampling       LoggerSampling      `mapstructure:"sampling_config"`
+}
+
+type LoggerEncoderConfig struct {
+	MessageKey string `mapstructure:"message_key" validate:"required"`
+	LevelKey   string `mapstructure:"level_key" validate:"required"`
+	NameKey    string `mapstructure:"name_key" validate:"required"`
+}
+
+type LoggerSampling struct {
+	Initial    int `mapstructure:"initial" validate:"required"`
+	Thereafter int `mapstructure:"thereafter" validate:"required"`
 }

@@ -9,8 +9,8 @@ db:
   host: "localhost"
   port: "5432"
   user: "postgres"
-  password: "postgres"
-  dbname: "myapp"
+  password: "1234"
+  dbname: "vinama"
   sslmode: "disable"
   max_conns: 20
   min_conns: 1
@@ -29,4 +29,19 @@ jwt:
   expire_hour: 24
   refresh_expire_day: 7
 
-log_level: "info"
+logger:
+  level: "info"
+  encoding: "json"
+  output_paths: 
+  - "stdout"
+  - "stderr" 
+  err_output_paths: 
+  - "stderr"
+  - "stdout"
+  encoder_config:
+    message_key: "msg"
+    level_key: "level"
+    name_key: "logger"
+  sampling_config:
+    initial: 100
+    thereafter: 100
