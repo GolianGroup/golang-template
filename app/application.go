@@ -2,13 +2,12 @@ package app
 
 import (
 	"context"
+	"github.com/gofiber/fiber/v2"
+	"go.uber.org/fx"
 	"golang_template/handler/routers"
 	"golang_template/internal/config"
 	"golang_template/internal/database"
 	"log"
-
-	"github.com/gofiber/fiber/v2"
-	"go.uber.org/fx"
 )
 
 type Application interface {
@@ -35,10 +34,13 @@ func (a *application) Setup() {
 			a.InitServices,
 			a.InitRepositories,
 			a.InitDatabase,
+			a.InitJaegerTracer,
 		),
-		fx.Invoke(func(lc fx.Lifecycle, db database.Database) {
+		fx.Invoke(func(lc fx.Lifecycle, db database.Database, cleanup func()) {
 			lc.Append(fx.Hook{
 				OnStop: func(ctx context.Context) error {
+					log.Println("Shutting down tracing provider")
+					cleanup() // Clean up Jaeger Tracer
 					log.Println(db.Close())
 					return nil
 				},
