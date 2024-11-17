@@ -1,48 +1,41 @@
 package producers
 
 import (
-	"log"
-	"time"
-
 	"golang_template/internal/config"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/gofiber/storage/redis/v3"
 )
 
 type RedisClient interface {
-	GetRedisClient() *redis.Client
+	RedisStorage() *redis.Storage
 	Close() error
 }
 
 type Redis struct {
-	client *redis.Client
+	store *redis.Storage
 }
 
 func NewRedis(cfg *config.RedisConfig) RedisClient {
-	addr := config.GetRedisAddr(cfg)
 
-	opt, err := redis.ParseURL(addr)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	opt.PoolSize = 10
-	opt.MinIdleConns = 2
-	opt.DialTimeout = 5 * time.Second
-	opt.ReadTimeout = 3 * time.Second
-	opt.WriteTimeout = 3 * time.Second
-	opt.IdleTimeout = 5 * time.Minute
-
-	client := redis.NewClient(opt)
+	// Initialize custom config
+	store := redis.New(redis.Config{
+		Host:      cfg.Host,
+		Port:      cfg.Port,
+		Password:  cfg.Password,
+		Database:  cfg.DB,
+		Reset:     false,
+		TLSConfig: nil,
+		PoolSize:  cfg.PoolSize,
+	})
 	return &Redis{
-		client: client,
+		store: store,
 	}
 }
 
-func (r *Redis) GetRedisClient() *redis.Client {
-	return r.client
+func (r *Redis) RedisStorage() *redis.Storage {
+	return r.store
 }
 
 func (r *Redis) Close() error {
-	return r.client.Close()
+	return r.store.Close()
 }

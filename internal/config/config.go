@@ -73,8 +73,3 @@ func GetDSN(cfg *DatabaseConfig) string {
 		cfg.SSLMode,
 	)
 }
-
-// GetRedisAddr returns redis connection address
-func GetRedisAddr(cfg *RedisConfig) string {
-	return fmt.Sprintf("redis://%s:%s/%s", cfg.Host, cfg.Port, cfg.DB)
-}

@@ -33,12 +33,16 @@ type DatabaseConfig struct {
 // RedisConfig holds all redis related configuration
 type RedisConfig struct {
 	Host         string `mapstructure:"host" validate:"required,hostname|ip"`
-	Port         string `mapstructure:"port" validate:"required,number"`
+	Port         int    `mapstructure:"port" validate:"required,number"`
 	Password     string `mapstructure:"password"`
-	DB           string `mapstructure:"db" validate:"required,string"`
+	DB           int    `mapstructure:"db"`
 	MaxRetries   int    `mapstructure:"max_retries" validate:"required,min=1"`
 	PoolSize     int    `mapstructure:"pool_size" validate:"required,min=1"`
 	MinIdleConns int    `mapstructure:"min_idle_conns" validate:"required,min=1"`
+	DialTimeout  int    `mapstructure:"dial_time_out" validate:"required,min=1"`
+	ReadTimeout  int    `mapstructure:"read_time_out" validate:"required,min=1"`
+	WriteTimeout int    `mapstructure:"write_time_out" validate:"required,min=1"`
+	IdleTimeout  int    `mapstructure:"idle_time_out" validate:"required,min=1"`
 }
 
 // JWTConfig holds all JWT related configuration
