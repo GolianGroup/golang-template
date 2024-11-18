@@ -8,19 +8,33 @@ import (
 	"golang_template/internal/ent"
 	"golang_template/internal/ent/user"
 	"golang_template/internal/services/dto"
-	"log"
+
+	"github.com/google/uuid"
 )
 
 var (
-	ErrUserNotFound    = errors.New("user not found")
-	ErrUserExists      = errors.New("username already exists")
-	ErrInvalidPassword = errors.New("invalid password")
-	ErrDatabaseError   = errors.New("database error")
+	ErrUserNotFound = &RepositoryErr{
+		Msg: "User with this credentials not found",
+		Err: errors.New("record not found"),
+	}
+	ErrUserAlreadyExists = &RepositoryErr{
+		Msg: "User with this credentials already exists",
+		Err: errors.New("user already exists"),
+	}
+	ErrDatabase = &RepositoryErr{
+		Msg: "Database error occured",
+		Err: errors.New("database error"),
+	}
+	ErrInvalidCredentials = &RepositoryErr{
+		Msg: "Invalid credentials provided",
+		Err: errors.New("invalid credentials"),
+	}
 )
 
 type UserRepository interface {
 	Get(ctx context.Context, userDto dto.User) (*ent.User, error)
-	CreateUser(ctx context.Context, userData dto.User) error
+	Create(ctx context.Context, userData dto.User) error
+	Delete(ctx context.Context, id uuid.UUID) error
 }
 
 type userRepository struct {
@@ -49,13 +63,21 @@ func (r userRepository) Get(ctx context.Context, userDto dto.User) (*ent.User, e
 		return nil, ErrUserNotFound
 	}
 	if err != nil {
-		return nil, fmt.Errorf("querying user: %w", err)
+		return nil, ErrDatabase
 	}
 
 	return userData, nil
 }
 
-func (r userRepository) CreateUser(ctx context.Context, userData dto.User) error {
+func (r userRepository) Create(ctx context.Context, userData dto.User) error {
+	exists, _ := r.db.EntClient().User.
+		Query().
+		Where(user.Username(userData.Username)).
+		Exist(ctx)
+
+	if exists {
+		return ErrUserAlreadyExists
+	}
 
 	// Create new user
 	_, err := r.db.EntClient().User.
@@ -64,10 +86,39 @@ func (r userRepository) CreateUser(ctx context.Context, userData dto.User) error
 		SetPassword(userData.Password).
 		Save(ctx)
 
-	log.Println(err)
+	if ent.IsValidationError(err) {
+		return ErrInvalidCredentials
+	}
+	if err != nil {
+		return ErrDatabase
+	}
+
+	return nil
+}
+
+func (r userRepository) Delete(ctx context.Context, id uuid.UUID) error {
+	err := r.db.EntClient().User.
+		DeleteOneID(id).
+		Exec(ctx)
+	if err != nil {
+		return ErrDatabase
+	}
+
+	return nil
+}
+
+func (r userRepository) Update(ctx context.Context, id uuid.UUID) error {
+	r.db.EntClient()
+	err := r.db.EntClient().User.
+		UpdateOneID(id).
+		Exec(ctx)
+
+	if ent.IsValidationError(err) {
+		return ErrInvalidCredentials
+	}
 
 	if err != nil {
-		return fmt.Errorf("creating user: %w", err)
+		return ErrDatabase
 	}
 
 	return nil
