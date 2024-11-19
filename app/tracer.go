@@ -2,6 +2,7 @@ package app
 
 import (
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
@@ -21,6 +22,8 @@ func (a *application) InitJaegerTracer() func() {
 		trace.WithResource(resource.NewWithAttributes(
 			semconv.SchemaURL,
 			semconv.ServiceNameKey.String(a.config.Jaeger.Service),
+			semconv.ServiceVersionKey.String("1.0.0"),
+			attribute.String("environment", "development"),
 		)),
 	)
 	otel.SetTracerProvider(tracerProvider)
