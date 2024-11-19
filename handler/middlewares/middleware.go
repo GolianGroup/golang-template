@@ -8,11 +8,10 @@ import (
 	"github.com/gofiber/storage/redis/v3"
 )
 
-func LimiterConfig(max int, expiration int, storage *redis.Storage) limiter.Config {
-	expirationDuration := time.Duration(expiration) * time.Second
+func LimiterConfig(max int, expiration time.Duration, storage *redis.Storage) limiter.Config {
 	return limiter.Config{
 		Max:        max,
-		Expiration: expirationDuration,
+		Expiration: expiration,
 		KeyGenerator: func(c *fiber.Ctx) string {
 			return c.IP()
 		},
