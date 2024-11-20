@@ -58,13 +58,13 @@ func (c *userController) Login(ctx *fiber.Ctx) error {
 	}
 
 	user, err := c.service.Login(ctx, userDto)
-	if err != nil {
-		if errors.Is(err, services.ErrUserNotFound) {
-			return ctx.Status(ErrUserNotFound.Code).JSON(ErrUserNotFound)
-		}
 
-		return ctx.Status(ErrInternal.Code).JSON(ErrInternal)
+	if err == nil {
+		return ctx.Status(fiber.StatusOK).JSON(user)
+	}
+	if errors.Is(err, services.ErrUserNotFound) {
+		return ctx.Status(ErrUserNotFound.Code).JSON(ErrUserNotFound)
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(user)
+	return ctx.Status(ErrInternal.Code).JSON(ErrInternal)
 }

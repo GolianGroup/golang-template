@@ -36,16 +36,21 @@ func NewUserService(repo repositories.UserRepository) UserService {
 	return &userService{repo: repo}
 }
 
-func (s *userService) Login(ctx *fiber.Ctx, user dto.User) (*ent.User, error) {
-	foundUser, err := s.repo.Get(ctx.Context(), user)
-	if err != nil {
-		if errors.Is(err, repositories.ErrUserNotFound) {
-			return nil, ErrUserNotFound
-		}
-		if errors.Is(err, repositories.ErrDatabase) {
-			return nil, ErrInternal
-		}
+func (s *userService) Login(ctx *fiber.Ctx, u dto.User) (*ent.User, error) {
+	user := ent.User{
+		Username: u.Username,
+		Password: u.Password,
+	}
+
+	foundUser, err := s.repo.Get(ctx.Context(), &user)
+	if err == nil {
+		return foundUser, nil
+	}
+	if errors.Is(err, repositories.ErrUserNotFound) {
+		return nil, ErrUserNotFound
+	}
+	if errors.Is(err, repositories.ErrDatabase) {
 		return nil, ErrInternal
 	}
-	return foundUser, nil
+	return nil, ErrInternal
 }

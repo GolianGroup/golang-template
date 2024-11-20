@@ -7,7 +7,6 @@ import (
 	"golang_template/internal/database/postgres"
 	"golang_template/internal/ent"
 	"golang_template/internal/ent/user"
-	"golang_template/internal/services/dto"
 
 	"github.com/google/uuid"
 )
@@ -32,8 +31,8 @@ var (
 )
 
 type UserRepository interface {
-	Get(ctx context.Context, userDto dto.User) (*ent.User, error)
-	Create(ctx context.Context, userData dto.User) error
+	Get(ctx context.Context, userDto *ent.User) (*ent.User, error)
+	Create(ctx context.Context, userData *ent.User) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
@@ -53,23 +52,22 @@ func NewUserRepository(db postgres.Database) UserRepository {
 	}
 }
 
-func (r userRepository) Get(ctx context.Context, userDto dto.User) (*ent.User, error) {
+func (r userRepository) Get(ctx context.Context, userDto *ent.User) (*ent.User, error) {
 	userData, err := r.db.EntClient().User.
 		Query().
 		Where(user.Username(userDto.Username), user.Password(userDto.Password)).
 		First(ctx)
 
+	if err == nil {
+		return userData, nil
+	}
 	if ent.IsNotFound(err) {
 		return nil, ErrUserNotFound
 	}
-	if err != nil {
-		return nil, ErrDatabase
-	}
-
-	return userData, nil
+	return nil, ErrDatabase
 }
 
-func (r userRepository) Create(ctx context.Context, userData dto.User) error {
+func (r userRepository) Create(ctx context.Context, userData *ent.User) error {
 	exists, _ := r.db.EntClient().User.
 		Query().
 		Where(user.Username(userData.Username)).
@@ -86,25 +84,23 @@ func (r userRepository) Create(ctx context.Context, userData dto.User) error {
 		SetPassword(userData.Password).
 		Save(ctx)
 
+	if err == nil {
+		return nil
+	}
 	if ent.IsValidationError(err) {
 		return ErrInvalidCredentials
 	}
-	if err != nil {
-		return ErrDatabase
-	}
-
-	return nil
+	return ErrDatabase
 }
 
 func (r userRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	err := r.db.EntClient().User.
 		DeleteOneID(id).
 		Exec(ctx)
-	if err != nil {
-		return ErrDatabase
+	if err == nil {
+		return nil
 	}
-
-	return nil
+	return ErrDatabase
 }
 
 func (r userRepository) Update(ctx context.Context, id uuid.UUID) error {
@@ -113,13 +109,11 @@ func (r userRepository) Update(ctx context.Context, id uuid.UUID) error {
 		UpdateOneID(id).
 		Exec(ctx)
 
+	if err == nil {
+		return nil
+	}
 	if ent.IsValidationError(err) {
 		return ErrInvalidCredentials
 	}
-
-	if err != nil {
-		return ErrDatabase
-	}
-
-	return nil
+	return ErrDatabase
 }
