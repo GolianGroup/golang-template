@@ -51,7 +51,6 @@ type JWTConfig struct {
 type LoggerConfig struct {
 	Level         string              `mapstructure:"level" validate:"required,oneof=debug info warn error panic"`
 	EncoderConfig LoggerEncoderConfig `mapstructure:"encoder_config"`
-	Sampling      LoggerSampling      `mapstructure:"sampling_config"`
 	Rotation      RotationConfig      `mapstructure:"rotation_config"`
 }
 
@@ -59,11 +58,6 @@ type LoggerEncoderConfig struct {
 	MessageKey string `mapstructure:"message_key" validate:"required"`
 	LevelKey   string `mapstructure:"level_key" validate:"required"`
 	NameKey    string `mapstructure:"name_key" validate:"required"`
-}
-
-type LoggerSampling struct {
-	Initial    int `mapstructure:"initial" validate:"required"`
-	Thereafter int `mapstructure:"thereafter" validate:"required"`
 }
 
 type RotationConfig struct {

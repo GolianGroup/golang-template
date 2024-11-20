@@ -35,9 +35,6 @@ logger:
     message_key: "msg"
     level_key: "level"
     name_key: "logger"
-  sampling_config:
-    initial: 100
-    thereafter: 100
   rotation_config:
     filename: "var/lib/test.txt"
     max_size: 500
