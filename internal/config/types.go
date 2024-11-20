@@ -49,12 +49,10 @@ type JWTConfig struct {
 }
 
 type LoggerConfig struct {
-	Level          string              `mapstructure:"level" validate:"required,oneof=debug info warn error panic"`
-	Encoding       string              `mapstructure:"encoding" validate:"required,oneof=json yaml"`
-	OutputPaths    []string            `mapstructure:"output_paths" validate:"required"`
-	ErrOutoutPaths []string            `mapstructure:"err_output_paths" validate:"required"`
-	EncoderConfig  LoggerEncoderConfig `mapstructure:"encoder_config"`
-	Sampling       LoggerSampling      `mapstructure:"sampling_config"`
+	Level         string              `mapstructure:"level" validate:"required,oneof=debug info warn error panic"`
+	EncoderConfig LoggerEncoderConfig `mapstructure:"encoder_config"`
+	Sampling      LoggerSampling      `mapstructure:"sampling_config"`
+	Rotation      RotationConfig      `mapstructure:"rotation_config"`
 }
 
 type LoggerEncoderConfig struct {
@@ -66,4 +64,11 @@ type LoggerEncoderConfig struct {
 type LoggerSampling struct {
 	Initial    int `mapstructure:"initial" validate:"required"`
 	Thereafter int `mapstructure:"thereafter" validate:"required"`
+}
+
+type RotationConfig struct {
+	Filename   string `mapstruct:"filename" validate:"required"`
+	MaxSize    int    `mapstruct:"mazsize"` // megabytes
+	MaxBackups int    `mapstruct:"max_backups"`
+	MaxAge     int    `mapstruct:"max_ages"` // days
 }

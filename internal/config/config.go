@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -71,28 +70,4 @@ func NewLoggerEncoderConfig(cfg *LoggerEncoderConfig) zapcore.EncoderConfig {
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
 	}
-}
-
-// NewProductionConfig builds a reasonable default production logging
-// configuration.
-//
-// for more information about fields check the documentation
-func NewLoggerConfig(cfg *LoggerConfig) zap.Config {
-	// Ignore the error because we check that the levels are valid during configuration loading.
-	level, _ := zapcore.ParseLevel(cfg.Level)
-
-	logger := zap.Config{
-		Level:       zap.NewAtomicLevelAt(level),
-		Development: false,
-		Sampling: &zap.SamplingConfig{
-			Initial:    cfg.Sampling.Initial,
-			Thereafter: cfg.Sampling.Thereafter,
-		},
-		Encoding:         cfg.Encoding,
-		EncoderConfig:    NewLoggerEncoderConfig(&cfg.EncoderConfig),
-		OutputPaths:      cfg.OutputPaths,
-		ErrorOutputPaths: cfg.ErrOutoutPaths,
-	}
-
-	return logger
 }

@@ -1,7 +1,7 @@
 server:
   port: "8080"
   host: "0.0.0.0"
-  mode: "development"
+  mode: "production"
   read_timeout: 10  # seconds
   write_timeout: 10 # seconds
 
@@ -30,14 +30,6 @@ jwt:
   refresh_expire_day: 7
 
 logger:
-  level: "info"
-  encoding: "json"
-  output_paths: 
-  - "stdout"
-  - "stderr" 
-  err_output_paths: 
-  - "stderr"
-  - "stdout"
   encoder_config:
     message_key: "msg"
     level_key: "level"
@@ -45,3 +37,9 @@ logger:
   sampling_config:
     initial: 100
     thereafter: 100
+  rotation_config:
+    filename: "var/lib/test.txt"
+    max_size: 500
+    max_backups: 2
+    max_age: 1
+    
