@@ -1,7 +1,7 @@
 server:
   port: "8080"
   host: "0.0.0.0"
-  mode: "production"
+  mode: "development"
   read_timeout: 10  # seconds
   write_timeout: 10 # seconds
 
@@ -9,8 +9,8 @@ db:
   host: "localhost"
   port: "5432"
   user: "postgres"
-  password: "1234"
-  dbname: "vinama"
+  password: "postgres"
+  dbname: "myapp"
   sslmode: "disable"
   max_conns: 20
   min_conns: 1
