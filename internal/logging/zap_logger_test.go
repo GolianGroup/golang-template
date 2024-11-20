@@ -2,6 +2,7 @@ package logging
 
 import (
 	"bytes"
+	"encoding/json"
 	"testing"
 
 	"go.uber.org/zap"
@@ -49,10 +50,10 @@ func TestNewZapLogger(t *testing.T) {
 }
 
 func TestZapLoggerInfo(t *testing.T) {
-	// create custome example logger
 	buffer := &bytes.Buffer{}
 	encoder := zap.NewDevelopmentEncoderConfig()
-	encoder.EncodeTime = zapcore.ISO8601TimeEncoder
+
+	encoder.EncodeCaller = zapcore.ShortCallerEncoder
 
 	core := zapcore.NewCore(
 		zapcore.NewJSONEncoder(encoder),
@@ -67,64 +68,94 @@ func TestZapLoggerInfo(t *testing.T) {
 		logger *ZapLogger
 		msg    string
 		fields []zap.Field
-		want   string
+		want   map[string]interface{}
 	}{
 		{
 			name:   "Simple Info log",
 			logger: zapLogger,
 			msg:    "Info log message",
 			fields: []zap.Field{zap.String("key", "value")},
-			want:   `{"L":"INFO","T":"2024-11-19T13:11:53.385+0330","M":"Info log message","key":"value"}`,
+			want: map[string]interface{}{
+				"L":   "INFO",
+				"M":   "Info log message",
+				"key": "value",
+			},
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			buffer.Reset()
 			tt.logger.Info(tt.msg, tt.fields...)
-			// if got := buffer.String(); !containsJSON(got, tt.want) {
-			// 	t.Errorf("Info() = %s, want contains %s", got, tt.want)
-			// }
+
+			got := buffer.String()
+
+			var gotLog map[string]interface{}
+			if err := json.Unmarshal([]byte(got), &gotLog); err != nil {
+				t.Fatalf("Failed to unmarshal log: %v", err)
+			}
+
+			for key, expectedValue := range tt.want {
+				if gotLog[key] != expectedValue {
+					t.Errorf("Key %q = %v, want %v", key, gotLog[key], expectedValue)
+				}
+			}
+
 		})
 	}
 }
 
-// func TestZapLogger_Error(t *testing.T) {
-// 	type args struct {
-// 		msg    string
-// 		fields []zap.Field
-// 	}
-// 	tests := []struct {
-// 		name string
-// 		z    *ZapLogger
-// 		args args
-// 	}{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			tt.z.Error(tt.args.msg, tt.args.fields...)
-// 		})
-// 	}
-// }
+func TestZapLoggerError(t *testing.T) {
+	buffer := &bytes.Buffer{}
+	encoder := zap.NewDevelopmentEncoderConfig()
 
-//	func TestZapLogger_Fatal(t *testing.T) {
-//		type args struct {
-//			msg    string
-//			fields []zap.Field
-//		}
-//		tests := []struct {
-//			name string
-//			z    *ZapLogger
-//			args args
-//		}{
-//			// TODO: Add test cases.
-//		}
-//		for _, tt := range tests {
-//			t.Run(tt.name, func(t *testing.T) {
-//				tt.z.Fatal(tt.args.msg, tt.args.fields...)
-//			})
-//		}
-//	}
-func containsJSON(actual, expected string) bool {
-	return bytes.Contains([]byte(actual), []byte(expected))
+	encoder.EncodeCaller = zapcore.ShortCallerEncoder
+
+	core := zapcore.NewCore(
+		zapcore.NewJSONEncoder(encoder),
+		zapcore.AddSync(buffer),
+		zapcore.ErrorLevel,
+	)
+	logger := zap.New(core)
+	zapLogger := NewZapLogger(logger)
+
+	tests := []struct {
+		name   string
+		logger *ZapLogger
+		msg    string
+		fields []zap.Field
+		want   map[string]interface{}
+	}{
+		{
+			name:   "Simple Error log",
+			logger: zapLogger,
+			msg:    "Error log message",
+			fields: []zap.Field{zap.String("key", "value")},
+			want: map[string]interface{}{
+				"L":   "ERROR",
+				"M":   "Error log message",
+				"key": "value",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			buffer.Reset()
+			tt.logger.Error(tt.msg, tt.fields...)
+
+			got := buffer.String()
+
+			var gotLog map[string]interface{}
+			if err := json.Unmarshal([]byte(got), &gotLog); err != nil {
+				t.Fatalf("Failed to unmarshal log: %v", err)
+			}
+
+			for key, expectedValue := range tt.want {
+				if gotLog[key] != expectedValue {
+					t.Errorf("Key %q = %v, want %v", key, gotLog[key], expectedValue)
+				}
+			}
+		})
+	}
 }
