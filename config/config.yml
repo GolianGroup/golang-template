@@ -30,6 +30,7 @@ jwt:
   refresh_expire_day: 7
 
 logger:
+  level: "info"
   encoder_config:
     message_key: "msg"
     level_key: "level"
