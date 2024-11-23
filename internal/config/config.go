@@ -49,3 +49,7 @@ func GetDSN(cfg *DatabaseConfig) string {
 func GetRedisAddr(cfg *RedisConfig) string {
 	return fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
 }
+
+func GetArangoStr(cfg *ArangoConfig) string {
+	return fmt.Sprintf("http://%s:%s", cfg.Host, cfg.Port)
+}
