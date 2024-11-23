@@ -33,7 +33,7 @@ log_level: "info"
 
 arango:
   db_name: "arangodb"
-  port: 8529
-  host: "localhost"
+  conn_strs: "tcp://127.0.0.1:8529,http://198.51.100.1:8529"
+  insecure_skip_verify: true
   user: "root"
   password: "root"

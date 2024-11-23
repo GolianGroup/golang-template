@@ -50,9 +50,9 @@ type JWTConfig struct {
 }
 
 type ArangoConfig struct {
-	Host   string `mapstructure:"host" validate:"required,hostname|ip"`
-	Port   string `mapstructure:"port" validate:"required,number"`
-	DBName string `mapstructure:"db_name" validate:"required"`
-	User   string `mapstructure:"user" validate:"required"`
-	Pass   string `mapstructure:"password" validate:"required"`
+	ConnStrs           string `mapstructure:"conn_strs" validate:"required"`
+	InsecureSkipVerify bool   `mapstructure:"insecure_skip_verify" validate:"required"`
+	DBName             string `mapstructure:"db_name" validate:"required"`
+	User               string `mapstructure:"user" validate:"required"`
+	Pass               string `mapstructure:"password" validate:"required"`
 }
