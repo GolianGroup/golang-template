@@ -15,7 +15,7 @@ type ArangoDB interface {
 	CreateCollection(ctx context.Context, dbName string, colName string) (arangodb.Collection, error)
 	Collection(ctx context.Context, dbName string, colName string) (arangodb.Collection, error)
 	AsyncDatabase(ctx context.Context, jobID string, dbName string) (arangodb.Database, error)
-	AsyncJobResult(ctx context.Context, dbName string) (arangodb.Database, string, error)
+	AsyncJobResult(ctx context.Context, dbName string) (string, error)
 }
 
 type arangoDB struct {
@@ -110,25 +110,25 @@ func (a *arangoDB) Collection(ctx context.Context, dbName string, colName string
 	return collection, nil
 }
 
-func (a *arangoDB) AsyncJobResult(ctx context.Context, dbName string) (arangodb.Database, string, error) {
+func (a *arangoDB) AsyncJobResult(ctx context.Context, dbName string) (string, error) {
 	client := a.asyncClient()
 
 	// Trigger async database check
 	dbExists, errWithJobID := client.DatabaseExists(connection.WithAsync(ctx), dbName)
 	if !dbExists {
-		return nil, "", fmt.Errorf("database %s does not exist", dbName)
+		return "", fmt.Errorf("database %s does not exist", dbName)
 	}
 	if errWithJobID == nil {
-		return nil, "", fmt.Errorf("expected async job ID, got nil")
+		return "", fmt.Errorf("expected async job ID, got nil")
 	}
 
 	// Extract async job ID
 	jobID, isAsync := connection.IsAsyncJobInProgress(errWithJobID)
 	if !isAsync {
-		return nil, "", fmt.Errorf("expected async job ID, got %v", jobID)
+		return "", fmt.Errorf("expected async job ID, got %v", jobID)
 	}
 
-	return nil, jobID, nil
+	return jobID, nil
 }
 
 func (a *arangoDB) AsyncDatabase(ctx context.Context, jobID string, dbName string) (arangodb.Database, error) {
