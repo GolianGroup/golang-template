@@ -4,7 +4,7 @@ import (
 	"context"
 	"golang_template/handler/routers"
 	"golang_template/internal/config"
-	"golang_template/internal/database"
+	"golang_template/internal/database/postgres"
 	"golang_template/internal/logging"
 	"log"
 
@@ -36,9 +36,10 @@ func (a *application) Setup() {
 			a.InitServices,
 			a.InitRepositories,
 			a.InitDatabase,
+			a.InitArangoDB,
 			a.InitLogger,
 		),
-		fx.Invoke(func(lc fx.Lifecycle, db database.Database, logger logging.Logger) {
+		fx.Invoke(func(lc fx.Lifecycle, db postgres.Database, logger logging.Logger) {
 			lc.Append(fx.Hook{
 				OnStop: func(ctx context.Context) error {
 					logger.Error("Failed to start database")

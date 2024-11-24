@@ -7,6 +7,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
 	"go.uber.org/zap/zapcore"
+	"golang.org/x/exp/slices"
 )
 
 // LoadConfig loads configuration from file and environment variables
@@ -70,4 +71,21 @@ func NewLoggerEncoderConfig(cfg *LoggerEncoderConfig) zapcore.EncoderConfig {
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
 	}
+}
+func GetArangoStrings(cfg *ArangoConfig) ([]string, error) {
+	connections := strings.Split(cfg.ConnStrs, ",")
+
+	allowedProtocols := []string{"tcp", "http", "https", "ssl", "unix", "http+tcp", "http+srv", "http+ssl", "http+unix"}
+
+	for _, conn := range connections {
+		parts := strings.SplitN(conn, "://", 2)
+		if len(parts) != 2 {
+			return nil, fmt.Errorf("invalid connection string: %s", conn)
+		}
+		if !slices.Contains(allowedProtocols, parts[0]) {
+			return nil, fmt.Errorf("invalid protocol: %s in connection string: %s", parts[0], conn)
+		}
+	}
+
+	return connections, nil
 }

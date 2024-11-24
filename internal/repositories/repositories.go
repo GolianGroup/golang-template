@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"golang_template/internal/database"
+	"golang_template/internal/database/postgres"
 )
 
 type Repository interface {
@@ -16,7 +16,7 @@ type repository struct {
 	userRepository UserRepository
 }
 
-func NewRepository(db database.Database) Repository {
+func NewRepository(db postgres.Database) Repository {
 	userRepository := NewUserRepository(db)
 	return &repository{userRepository: userRepository}
 }

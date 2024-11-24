@@ -2,11 +2,12 @@ package config
 
 // Config holds all configuration for the application
 type Config struct {
-	Server ServerConfig   `mapstructure:"server" validate:"required"`
-	DB     DatabaseConfig `mapstructure:"db" validate:"required"`
-	Redis  RedisConfig    `mapstructure:"redis" validate:"required"`
-	JWT    JWTConfig      `mapstructure:"jwt" validate:"required"`
-	Logger LoggerConfig   `mapstructure:"logger" validate:"required"`
+	Server   ServerConfig   `mapstructure:"server" validate:"required"`
+	DB       DatabaseConfig `mapstructure:"db" validate:"required"`
+	Redis    RedisConfig    `mapstructure:"redis" validate:"required"`
+	JWT      JWTConfig      `mapstructure:"jwt" validate:"required"`
+	Logger   LoggerConfig   `mapstructure:"logger" validate:"required"`
+	ArangoDB ArangoConfig   `mapstructure:"arango" validate:"required"`
 }
 
 // ServerConfig holds all server related configuration
@@ -65,4 +66,11 @@ type RotationConfig struct {
 	MaxSize    int    `mapstruct:"mazsize"` // megabytes
 	MaxBackups int    `mapstruct:"max_backups"`
 	MaxAge     int    `mapstruct:"max_ages"` // days
+}
+type ArangoConfig struct {
+	ConnStrs           string `mapstructure:"conn_strs" validate:"required"`
+	InsecureSkipVerify bool   `mapstructure:"insecure_skip_verify" validate:"required"`
+	DBName             string `mapstructure:"db_name" validate:"required"`
+	User               string `mapstructure:"user" validate:"required"`
+	Pass               string `mapstructure:"password" validate:"required"`
 }
