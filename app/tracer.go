@@ -11,8 +11,13 @@ import (
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
+	oteltrace "go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc/credentials"
 )
+
+func (a *application) InitTracerProvider() oteltrace.Tracer {
+	return otel.Tracer(a.config.Tracer.ServiceName)
+}
 
 func (a *application) InitTracer() func(context.Context) error {
 	var secureOption otlptracegrpc.Option
