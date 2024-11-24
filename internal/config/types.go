@@ -6,7 +6,7 @@ type Config struct {
 	DB       DatabaseConfig `mapstructure:"db" validate:"required"`
 	Redis    RedisConfig    `mapstructure:"redis" validate:"required"`
 	JWT      JWTConfig      `mapstructure:"jwt" validate:"required"`
-	LogLevel string         `mapstructure:"log_level" validate:"required,oneof=debug info warn error"`
+	Logger   LoggerConfig   `mapstructure:"logger" validate:"required"`
 	ArangoDB ArangoConfig   `mapstructure:"arango" validate:"required"`
 	Tracer   TracerConfig   `mapstructure:"tracer" validate:"required"`
 }
@@ -50,6 +50,24 @@ type JWTConfig struct {
 	RefreshExpireDay int    `mapstructure:"refresh_expire_day" validate:"required,min=1"`
 }
 
+type LoggerConfig struct {
+	Level         string              `mapstructure:"level" validate:"required,oneof=debug info warn error panic"`
+	EncoderConfig LoggerEncoderConfig `mapstructure:"encoder_config"`
+	Rotation      RotationConfig      `mapstructure:"rotation_config"`
+}
+
+type LoggerEncoderConfig struct {
+	MessageKey string `mapstructure:"message_key" validate:"required"`
+	LevelKey   string `mapstructure:"level_key" validate:"required"`
+	NameKey    string `mapstructure:"name_key" validate:"required"`
+}
+
+type RotationConfig struct {
+	Filename   string `mapstruct:"filename" validate:"required"`
+	MaxSize    int    `mapstruct:"mazsize"` // megabytes
+	MaxBackups int    `mapstruct:"max_backups"`
+	MaxAge     int    `mapstruct:"max_ages"` // days
+}
 type ArangoConfig struct {
 	ConnStrs           string `mapstructure:"conn_strs" validate:"required"`
 	InsecureSkipVerify bool   `mapstructure:"insecure_skip_verify" validate:"required"`

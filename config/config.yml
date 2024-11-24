@@ -29,4 +29,4 @@ jwt:
   expire_hour: 24
   refresh_expire_day: 7
 
-log_level: "info"
+    

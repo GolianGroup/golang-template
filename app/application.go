@@ -5,6 +5,7 @@ import (
 	"golang_template/handler/routers"
 	"golang_template/internal/config"
 	"golang_template/internal/database/postgres"
+	"golang_template/internal/logging"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -36,6 +37,7 @@ func (a *application) Setup() {
 			a.InitRepositories,
 			a.InitDatabase,
 			a.InitArangoDB,
+			a.InitLogger,
 		),
 		fx.Invoke(func(lc fx.Lifecycle, db postgres.Database) {
 			// Init Tracer
@@ -50,7 +52,9 @@ func (a *application) Setup() {
 				},
 			})
 		}),
-		fx.Invoke(func(app *fiber.App, router routers.Router) {
+
+		fx.Invoke(func(app *fiber.App, router routers.Router, logger logging.Logger) {
+			logger.Info("Server Started")
 			log.Fatal(app.Listen(a.config.Server.Host + ":" + a.config.Server.Port))
 		}),
 	)

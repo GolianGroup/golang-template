@@ -37,3 +37,16 @@ arango:
   insecure_skip_verify: true
   user: "root"
   password: "root"
+
+# You will only need this in production.
+logger:
+  level: "info" 
+  encoder_config:
+    message_key: "msg"
+    level_key: "level"
+    name_key: "logger"
+  rotation_config:
+    filename: "var/lib/test.txt"
+    max_size: 500
+    max_backups: 2
+    max_age: 1
