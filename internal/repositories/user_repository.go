@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"golang_template/internal/database"
+	"golang_template/internal/database/postgres"
 	"golang_template/internal/ent"
 	"golang_template/internal/ent/user"
 	"golang_template/internal/services/dto"
@@ -24,7 +24,7 @@ type UserRepository interface {
 }
 
 type userRepository struct {
-	db database.Database
+	db postgres.Database
 }
 
 func test(err error) {
@@ -33,7 +33,7 @@ func test(err error) {
 	}
 }
 
-func NewUserRepository(db database.Database) UserRepository {
+func NewUserRepository(db postgres.Database) UserRepository {
 	return &userRepository{
 		db: db,
 	}

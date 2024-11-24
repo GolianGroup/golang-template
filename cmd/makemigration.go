@@ -6,6 +6,7 @@ package cmd
 import (
 	"golang_template/internal/config"
 	"golang_template/internal/database"
+	"golang_template/internal/database/postgres"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -51,7 +52,7 @@ var makemigrationCmd = &cobra.Command{
 			return
 		}
 
-		db, err := database.NewDatabase(cmd.Context(), &dbConfig.DB)
+		db, err := postgres.NewDatabase(cmd.Context(), &dbConfig.DB)
 		if err != nil {
 			cmd.PrintErrf("Error while initializing database:\n\t %v", err)
 			return
