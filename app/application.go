@@ -38,8 +38,13 @@ func (a *application) Setup() {
 			a.InitArangoDB,
 		),
 		fx.Invoke(func(lc fx.Lifecycle, db postgres.Database) {
+			// Init Tracer
+			shutdownTracer := a.InitTracer()
 			lc.Append(fx.Hook{
 				OnStop: func(ctx context.Context) error {
+					if err := shutdownTracer(ctx); err != nil {
+						log.Printf("Error shutting down tracer: %v", err) // this should change after logging branch get merged
+					}
 					log.Println(db.Close())
 					return nil
 				},
