@@ -10,7 +10,7 @@ import (
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/sdk/resource"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/sdk/trace"
 	"google.golang.org/grpc/credentials"
 )
 
@@ -46,9 +46,10 @@ func (a *application) InitTracer() func(context.Context) error {
 	}
 
 	otel.SetTracerProvider(
-		sdktrace.NewTracerProvider(
-			sdktrace.WithBatcher(exporter),
-			sdktrace.WithResource(resources),
+		trace.NewTracerProvider(
+			trace.WithSampler(trace.AlwaysSample()),
+			trace.WithBatcher(exporter),
+			trace.WithResource(resources),
 		))
 
 	return exporter.Shutdown

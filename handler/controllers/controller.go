@@ -1,6 +1,10 @@
 package controllers
 
-import "golang_template/internal/logging"
+import (
+	"golang_template/internal/logging"
+
+	oteltrace "go.opentelemetry.io/otel/trace"
+)
 
 type Controllers interface {
 	UserController() UserController
@@ -10,8 +14,8 @@ type controllers struct {
 	userController UserController
 }
 
-func NewControllers(logger logging.Logger) Controllers {
-	userController := NewUserController(logger)
+func NewControllers(logger logging.Logger, tracer oteltrace.Tracer) Controllers {
+	userController := NewUserController(logger, tracer)
 	return &controllers{userController: userController}
 }
 

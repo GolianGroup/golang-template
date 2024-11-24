@@ -38,6 +38,7 @@ func (a *application) Setup() {
 			a.InitDatabase,
 			a.InitArangoDB,
 			a.InitLogger,
+			a.InitTracerProvider,
 		),
 		fx.Invoke(func(lc fx.Lifecycle, db postgres.Database) {
 			// Init Tracer
