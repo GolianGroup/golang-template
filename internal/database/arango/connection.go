@@ -11,13 +11,15 @@ import (
 )
 
 type ArangoDB interface {
-	Database(ctx context.Context, dbName string) (arangodb.Database, error)
-	CreateCollection(ctx context.Context, dbName string, colName string) (arangodb.Collection, error)
-	Collection(ctx context.Context, dbName string, colName string) (arangodb.Collection, error)
+	Database(ctx context.Context, dbName string) arangodb.Database
+	VideoCollection(ctx context.Context) arangodb.Collection
 }
 
 type arangoDB struct {
-	client arangodb.Client
+	database        arangodb.Database
+	client          arangodb.Client
+	videoCollection arangodb.Collection
+	config          *config.ArangoConfig
 }
 
 func NewArangoDB(ctx context.Context, conf *config.ArangoConfig) (ArangoDB, error) {
@@ -36,66 +38,43 @@ func NewArangoDB(ctx context.Context, conf *config.ArangoConfig) (ArangoDB, erro
 
 	client := arangodb.NewClient(conn)
 
-	return &arangoDB{
-		client: client,
-	}, nil
-}
-
-func (a *arangoDB) Database(ctx context.Context, dbName string) (arangodb.Database, error) {
 	timeoutCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
-	dbExists, err := a.client.DatabaseExists(timeoutCtx, dbName)
+	dbExists, err := client.DatabaseExists(timeoutCtx, conf.DBName)
 	if err != nil {
 		return nil, err
 	}
 	if !dbExists {
-		return nil, fmt.Errorf("database %s does not exist", dbName)
+		return nil, fmt.Errorf("database %s does not exist", conf.DBName)
 	}
 
-	db, err := a.client.Database(timeoutCtx, dbName)
+	db, err := client.Database(timeoutCtx, conf.DBName)
 	if err != nil {
 		return nil, err
 	}
 
-	return db, nil
+	options := arangodb.GetCollectionOptions{
+		SkipExistCheck: false,
+	}
+
+	videoCollection, err := db.GetCollection(ctx, "video_collection", &options)
+	if err != nil {
+		return nil, err
+	}
+
+	return &arangoDB{
+		database:        db,
+		client:          client,
+		videoCollection: videoCollection,
+		config:          conf,
+	}, nil
 }
 
-func (a *arangoDB) CreateCollection(ctx context.Context, dbName string, colName string) (arangodb.Collection, error) {
-	db, err := a.Database(ctx, dbName)
-	if err != nil {
-		return nil, err
-	}
-
-	exists, err := db.CollectionExists(ctx, colName)
-	if err != nil {
-		return nil, err
-	}
-	if exists {
-		return nil, fmt.Errorf("collection %s already exists", colName)
-	}
-	options := arangodb.CreateCollectionOptions{}
-	properties := arangodb.CreateCollectionProperties{}
-
-	collection, err := db.CreateCollectionWithOptions(ctx, colName, &properties, &options)
-	if err != nil {
-		return nil, err
-	}
-	return collection, nil
+func (a *arangoDB) Database(ctx context.Context, dbName string) arangodb.Database {
+	return a.database
 }
 
-func (a *arangoDB) Collection(ctx context.Context, dbName string, colName string) (arangodb.Collection, error) {
-	db, err := a.Database(ctx, dbName)
-	if err != nil {
-		return nil, err
-	}
-
-	options := arangodb.GetCollectionOptions{}
-
-	collection, err := db.GetCollection(ctx, colName, &options)
-	if err != nil {
-		return nil, err
-	}
-
-	return collection, nil
+func (a *arangoDB) VideoCollection(ctx context.Context) arangodb.Collection {
+	return a.videoCollection
 }

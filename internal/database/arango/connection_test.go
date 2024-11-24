@@ -62,40 +62,23 @@ func TestArangoDB(t *testing.T) {
 	}
 
 	t.Run("Test arango db initialization", func(t *testing.T) {
+		_, _, err := createSyncDatabaseAndCollections(ctx, "test", "video_collection", arangoConf.ConnStrs)
+		require.NoError(t, err)
+
 		conn, err := NewArangoDB(ctx, arangoConf)
 		require.NoError(t, err)
 
-		assert.NotNil(t, conn)
+		assert.IsType(t, &arangoDB{}, conn)
 	})
 
-	t.Run("Test returning database", func(t *testing.T) {
+	t.Run("Test return database instance", func(t *testing.T) {
 		ctx := context.Background()
 		conn, err := NewArangoDB(ctx, arangoConf)
 		require.NoError(t, err)
 
-		dbName := uniqueDatabaseName()
-		_, err = createSyncDatabase(ctx, dbName, arangoConf.ConnStrs)
-		require.NoError(t, err)
-
-		db, err := conn.Database(ctx, dbName)
-		require.NoError(t, err)
+		db := conn.Database(ctx, "test")
 
 		assert.NotNil(t, db)
-	})
-
-	t.Run("Test create collection", func(t *testing.T) {
-		ctx := context.Background()
-		conn, err := NewArangoDB(ctx, arangoConf)
-		require.NoError(t, err)
-
-		dbName := uniqueDatabaseName()
-		_, err = createSyncDatabase(ctx, dbName, arangoConf.ConnStrs)
-		require.NoError(t, err)
-
-		col, err := conn.CreateCollection(ctx, dbName, "testCollection")
-		require.NoError(t, err)
-
-		assert.NotNil(t, col)
 	})
 
 	t.Run("Test get collection", func(t *testing.T) {
@@ -103,36 +86,31 @@ func TestArangoDB(t *testing.T) {
 		conn, err := NewArangoDB(ctx, arangoConf)
 		require.NoError(t, err)
 
-		dbName := uniqueDatabaseName()
-		db, err := createSyncDatabase(ctx, dbName, arangoConf.ConnStrs)
-		require.NoError(t, err)
+		col := conn.VideoCollection(ctx)
 
-		db.CreateCollection(ctx, "testCollection", nil)
-
-		col, err := conn.Collection(ctx, dbName, "testCollection")
-		require.NoError(t, err)
-
+		assert.Equal(t, col.Name(), "video_collection")
 		assert.NotNil(t, col)
 	})
 }
 
 // helper functions
-func createSyncDatabase(ctx context.Context, dbName string, connStr string) (arangodb.Database, error) {
+func createSyncDatabaseAndCollections(ctx context.Context, dbName string, colName string, connStr string) (arangodb.Database, arangodb.Collection, error) {
 	endpoint := connection.NewRoundRobinEndpoints([]string{connStr})
 	conn := connection.NewHttp2Connection(connection.DefaultHTTP2ConfigurationWrapper(endpoint /*InsecureSkipVerify*/, true))
 	err := conn.SetAuthentication(connection.NewBasicAuth("root", "rootpassword"))
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	client := arangodb.NewClient(conn)
 	db, err := client.CreateDatabase(ctx, dbName, nil)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return db, nil
-}
+	col, err := db.CreateCollection(ctx, colName, nil)
+	if err != nil {
+		return nil, nil, err
+	}
 
-func uniqueDatabaseName() string {
-	return fmt.Sprintf("test_db_%d", time.Now().UnixNano())
+	return db, col, nil
 }
