@@ -14,12 +14,10 @@ type ArangoDB interface {
 	Database(ctx context.Context, dbName string) (arangodb.Database, error)
 	CreateCollection(ctx context.Context, dbName string, colName string) (arangodb.Collection, error)
 	Collection(ctx context.Context, dbName string, colName string) (arangodb.Collection, error)
-	AsyncDatabase(ctx context.Context, jobID string, dbName string) (arangodb.Database, error)
-	AsyncJobResult(ctx context.Context, dbName string) (string, error)
 }
 
 type arangoDB struct {
-	connection connection.Connection
+	client arangodb.Client
 }
 
 func NewArangoDB(ctx context.Context, conf *config.ArangoConfig) (ArangoDB, error) {
@@ -36,26 +34,18 @@ func NewArangoDB(ctx context.Context, conf *config.ArangoConfig) (ArangoDB, erro
 		return nil, err
 	}
 
+	client := arangodb.NewClient(conn)
+
 	return &arangoDB{
-		connection: conn,
+		client: client,
 	}, nil
-}
-
-func (a *arangoDB) syncClient() arangodb.Client {
-	return arangodb.NewClient(a.connection)
-}
-
-func (a *arangoDB) asyncClient() arangodb.Client {
-	conn := connection.NewConnectionAsyncWrapper(a.connection)
-	return arangodb.NewClient(conn)
 }
 
 func (a *arangoDB) Database(ctx context.Context, dbName string) (arangodb.Database, error) {
 	timeoutCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
-	client := a.syncClient()
-	dbExists, err := client.DatabaseExists(timeoutCtx, dbName)
+	dbExists, err := a.client.DatabaseExists(timeoutCtx, dbName)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +53,7 @@ func (a *arangoDB) Database(ctx context.Context, dbName string) (arangodb.Databa
 		return nil, fmt.Errorf("database %s does not exist", dbName)
 	}
 
-	db, err := client.Database(timeoutCtx, dbName)
+	db, err := a.client.Database(timeoutCtx, dbName)
 	if err != nil {
 		return nil, err
 	}
@@ -108,44 +98,4 @@ func (a *arangoDB) Collection(ctx context.Context, dbName string, colName string
 	}
 
 	return collection, nil
-}
-
-func (a *arangoDB) AsyncJobResult(ctx context.Context, dbName string) (string, error) {
-	client := a.asyncClient()
-
-	// Trigger async database check
-	dbExists, errWithJobID := client.DatabaseExists(connection.WithAsync(ctx), dbName)
-	if !dbExists {
-		return "", fmt.Errorf("database %s does not exist", dbName)
-	}
-	if errWithJobID == nil {
-		return "", fmt.Errorf("expected async job ID, got nil")
-	}
-
-	// Extract async job ID
-	jobID, isAsync := connection.IsAsyncJobInProgress(errWithJobID)
-	if !isAsync {
-		return "", fmt.Errorf("expected async job ID, got %v", jobID)
-	}
-
-	return jobID, nil
-}
-
-func (a *arangoDB) AsyncDatabase(ctx context.Context, jobID string, dbName string) (arangodb.Database, error) {
-	client := a.asyncClient()
-
-	// Fetch async job result
-	dbExists, err := client.DatabaseExists(connection.WithAsyncID(ctx, jobID), dbName)
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch async job result: %v", err)
-	}
-	if !dbExists {
-		return nil, fmt.Errorf("database does not exist")
-	}
-
-	db, err := client.Database(ctx, dbName)
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch database: %v", err)
-	}
-	return db, nil
 }
