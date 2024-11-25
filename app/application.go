@@ -4,7 +4,8 @@ import (
 	"context"
 	"golang_template/handler/routers"
 	"golang_template/internal/config"
-	"golang_template/internal/database"
+	"golang_template/internal/database/clickhouse"
+	"golang_template/internal/database/postgres"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -33,10 +34,12 @@ func (a *application) Setup() {
 			a.InitFramework,
 			a.InitController,
 			a.InitServices,
-			a.InitRepositories,
-			a.InitDatabase,
+			a.InitPostgresRepositories,
+			a.InitPostgresDatabase,
+			a.InitClickhouseDatabase,
 		),
-		fx.Invoke(func(lc fx.Lifecycle, db database.Database) {
+
+		fx.Invoke(func(lc fx.Lifecycle, db postgres.PostgresDatabase) {
 			lc.Append(fx.Hook{
 				OnStop: func(ctx context.Context) error {
 					log.Println(db.Close())
@@ -44,6 +47,17 @@ func (a *application) Setup() {
 				},
 			})
 		}),
+
+		fx.Invoke(func(lc fx.Lifecycle, clickhouse clickhouse.ClickhouseDatabase) {
+			lc.Append(fx.Hook{
+				OnStop: func(ctx context.Context) error {
+					log.Println(clickhouse.Close())
+					return nil
+				},
+			})
+		}),
+
+		// Existing fiber app invoke
 		fx.Invoke(func(app *fiber.App, router routers.Router) {
 			log.Fatal(app.Listen(a.config.Server.Host + ":" + a.config.Server.Port))
 		}),
