@@ -1,4 +1,4 @@
-package database
+package postgres
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 	"github.com/jackc/pgx/v5/stdlib"
 )
 
-type Database interface {
+type PostgresDatabase interface {
 	Close() error
 	EntClient() *ent.Client
 	DB() *dbsql.DB
@@ -27,7 +27,7 @@ type database struct {
 	client   *ent.Client
 }
 
-func NewDatabase(ctx context.Context, dbConfig *config.DatabaseConfig) (Database, error) {
+func NewPostgresDatabase(ctx context.Context, dbConfig *config.PostgresConfig) (PostgresDatabase, error) {
 
 	if dbConfig == nil {
 		return nil, fmt.Errorf("database config cannot be nil")
@@ -38,7 +38,7 @@ func NewDatabase(ctx context.Context, dbConfig *config.DatabaseConfig) (Database
 		return nil, fmt.Errorf("maxConns must be greater than or equal to minConns")
 	}
 
-	poolConfig, err := pgxpool.ParseConfig(config.GetDSN(dbConfig))
+	poolConfig, err := pgxpool.ParseConfig(config.GetPostgresDSN(dbConfig))
 	if err != nil {
 		return nil, err
 	}
