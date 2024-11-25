@@ -1,7 +1,7 @@
 package services
 
 import (
-	"golang_template/internal/repositories"
+	repositories "golang_template/internal/repositories/postgres"
 	"golang_template/internal/services/dto"
 
 	"github.com/gofiber/fiber/v2"

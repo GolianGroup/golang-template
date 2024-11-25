@@ -1,6 +1,6 @@
 package services
 
-import "golang_template/internal/repositories"
+import postgres_repositories "golang_template/internal/repositories/postgres"
 
 type Service interface {
 }
@@ -9,7 +9,7 @@ type service struct {
 	userService UserService
 }
 
-func NewService(repo repositories.Repository) Service {
+func NewService(repo postgres_repositories.PostgresRepository) Service {
 	userService := NewUserService(repo.UserRepository())
 	return &service{userService: userService}
 }
