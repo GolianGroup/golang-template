@@ -2,11 +2,12 @@ package config
 
 // Config holds all configuration for the application
 type Config struct {
-	Server   ServerConfig   `mapstructure:"server" validate:"required"`
-	DB       DatabaseConfig `mapstructure:"db" validate:"required"`
-	Redis    RedisConfig    `mapstructure:"redis" validate:"required"`
-	JWT      JWTConfig      `mapstructure:"jwt" validate:"required"`
-	LogLevel string         `mapstructure:"log_level" validate:"required,oneof=debug info warn error"`
+	Server     ServerConfig     `mapstructure:"server" validate:"required"`
+	Postgres   PostgresConfig   `mapstructure:"db" validate:"required"`
+	Redis      RedisConfig      `mapstructure:"redis" validate:"required"`
+	JWT        JWTConfig        `mapstructure:"jwt" validate:"required"`
+	LogLevel   string           `mapstructure:"log_level" validate:"required,oneof=debug info warn error"`
+	Clickhouse ClickhouseConfig `mapstructure:"clickhouse" validate:"required"`
 }
 
 // ServerConfig holds all server related configuration
@@ -19,7 +20,7 @@ type ServerConfig struct {
 }
 
 // DatabaseConfig holds all database related configuration
-type DatabaseConfig struct {
+type PostgresConfig struct {
 	Host     string `mapstructure:"host" validate:"required,hostname|ip"`
 	Port     string `mapstructure:"port" validate:"required,number"`
 	User     string `mapstructure:"user" validate:"required"`
@@ -46,4 +47,16 @@ type JWTConfig struct {
 	Secret           string `mapstructure:"secret" validate:"required,min=32"`
 	ExpireHour       int    `mapstructure:"expire_hour" validate:"required,min=1"`
 	RefreshExpireDay int    `mapstructure:"refresh_expire_day" validate:"required,min=1"`
+}
+
+// ClickhouseConfig holds all clickhouse related configuration
+type ClickhouseConfig struct {
+	Host         string `mapstructure:"host" validate:"required,hostname|ip"`
+	Port         string `mapstructure:"port" validate:"required,number"`
+	User         string `mapstructure:"user" validate:"required"`
+	Password     string `mapstructure:"password" validate:"required"`
+	Database     string `mapstructure:"database" validate:"required"`
+	MaxOpenConns int    `mapstructure:"max_open_conns" validate:"required,min=1"`
+	MaxIdleConns int    `mapstructure:"max_idle_conns" validate:"required,min=1"`
+	Debug        bool   `mapstructure:"debug"`
 }

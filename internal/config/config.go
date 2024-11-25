@@ -34,7 +34,7 @@ func LoadConfig(path string) (*Config, error) {
 }
 
 // GetDSN returns database connection string
-func GetDSN(cfg *DatabaseConfig) string {
+func GetPostgresDSN(cfg *PostgresConfig) string {
 	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		cfg.Host,
 		cfg.Port,
@@ -47,5 +47,10 @@ func GetDSN(cfg *DatabaseConfig) string {
 
 // GetRedisAddr returns redis connection address
 func GetRedisAddr(cfg *RedisConfig) string {
+	return fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
+}
+
+// GetClickhouseAddr returns clickhouse connection address
+func GetClickhouseAddr(cfg *ClickhouseConfig) string {
 	return fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
 }
