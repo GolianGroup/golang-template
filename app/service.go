@@ -1,10 +1,10 @@
 package app
 
 import (
-	"golang_template/internal/repositories"
+	postgres_repositories "golang_template/internal/repositories/postgres"
 	"golang_template/internal/services"
 )
 
-func (a *application) InitServices(repository repositories.UserRepository) services.UserService {
+func (a *application) InitServices(repository postgres_repositories.UserRepository) services.UserService {
 	return services.NewUserService(repository)
 }
