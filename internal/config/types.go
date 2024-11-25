@@ -8,6 +8,7 @@ type Config struct {
 	JWT        JWTConfig        `mapstructure:"jwt" validate:"required"`
 	LogLevel   string           `mapstructure:"log_level" validate:"required,oneof=debug info warn error"`
 	Clickhouse ClickhouseConfig `mapstructure:"clickhouse" validate:"required"`
+	ArangoDB   ArangoConfig     `mapstructure:"arango" validate:"required"`
 }
 
 // ServerConfig holds all server related configuration
@@ -59,4 +60,12 @@ type ClickhouseConfig struct {
 	MaxOpenConns int    `mapstructure:"max_open_conns" validate:"required,min=1"`
 	MaxIdleConns int    `mapstructure:"max_idle_conns" validate:"required,min=1"`
 	Debug        bool   `mapstructure:"debug"`
+}
+
+type ArangoConfig struct {
+	ConnStrs           string `mapstructure:"conn_strs" validate:"required"`
+	InsecureSkipVerify bool   `mapstructure:"insecure_skip_verify" validate:"required"`
+	DBName             string `mapstructure:"db_name" validate:"required"`
+	User               string `mapstructure:"user" validate:"required"`
+	Pass               string `mapstructure:"password" validate:"required"`
 }

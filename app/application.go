@@ -37,6 +37,7 @@ func (a *application) Setup() {
 			a.InitPostgresRepositories,
 			a.InitPostgresDatabase,
 			a.InitClickhouseDatabase,
+			a.InitArangoDB,
 		),
 
 		fx.Invoke(func(lc fx.Lifecycle, db postgres.PostgresDatabase) {
