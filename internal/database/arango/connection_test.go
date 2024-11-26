@@ -86,7 +86,8 @@ func TestArangoDB(t *testing.T) {
 		conn, err := NewArangoDB(ctx, arangoConf)
 		require.NoError(t, err)
 
-		col := conn.VideoCollection(ctx)
+		col, err := conn.VideoCollection(ctx)
+		require.NoError(t, err)
 
 		assert.Equal(t, col.Name(), "video_collection")
 		assert.NotNil(t, col)

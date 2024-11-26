@@ -12,14 +12,13 @@ import (
 
 type ArangoDB interface {
 	Database(ctx context.Context, dbName string) arangodb.Database
-	VideoCollection(ctx context.Context) arangodb.Collection
+	VideoCollection(ctx context.Context) (arangodb.Collection, error)
 }
 
 type arangoDB struct {
-	database        arangodb.Database
-	client          arangodb.Client
-	videoCollection arangodb.Collection
-	config          *config.ArangoConfig
+	database arangodb.Database
+	client   arangodb.Client
+	config   *config.ArangoConfig
 }
 
 func NewArangoDB(ctx context.Context, conf *config.ArangoConfig) (ArangoDB, error) {
@@ -54,20 +53,10 @@ func NewArangoDB(ctx context.Context, conf *config.ArangoConfig) (ArangoDB, erro
 		return nil, err
 	}
 
-	options := arangodb.GetCollectionOptions{
-		SkipExistCheck: false,
-	}
-
-	videoCollection, err := db.GetCollection(ctx, "video_collection", &options)
-	if err != nil {
-		return nil, err
-	}
-
 	return &arangoDB{
-		database:        db,
-		client:          client,
-		videoCollection: videoCollection,
-		config:          conf,
+		database: db,
+		client:   client,
+		config:   conf,
 	}, nil
 }
 
@@ -75,6 +64,15 @@ func (a *arangoDB) Database(ctx context.Context, dbName string) arangodb.Databas
 	return a.database
 }
 
-func (a *arangoDB) VideoCollection(ctx context.Context) arangodb.Collection {
-	return a.videoCollection
+func (a *arangoDB) VideoCollection(ctx context.Context) (arangodb.Collection, error) {
+	options := arangodb.GetCollectionOptions{
+		SkipExistCheck: false,
+	}
+
+	videoCollection, err := a.database.GetCollection(ctx, "video_collection", &options)
+	if err != nil {
+		return nil, err
+	}
+
+	return videoCollection, nil
 }
