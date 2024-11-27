@@ -11,16 +11,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// arangoMigrateCmd represents the ag_migrate command
-var arangoMigrateCmd = &cobra.Command{
-	Use:   "ag_migrate",
-	Short: "Migrate the json files",
-	Long: `Migrate the migration files. Example:
-	ag_migrate                              Migrate all the migration files
-	ag_migrate --dir ./database/arangomigrations  Migrate all the migration files from sepecific directory
-	ag_migrate --version  123456                 Migrate the migration file with this hash`,
+// arangoRollbackCmd represents the ag_rollback command
+var arangoRollbackCmd = &cobra.Command{
+	Use:   "ag_rollback",
+	Short: "Rollback migration/migrations",
+	Long: `Rollback migration migration/migrations. The path should be path to migration files.
+		You can write the migration version to rollback to a specific version.
+		For example:
+		ag_rollback
+		ag_rollback --dir ./database/arango/migrations --version 12345`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Println("ag_makemigration called")
+		cmd.Println("ag_rollback called")
 
 		dirFlag, err := cmd.Flags().GetString("dir")
 		if err != nil {
@@ -49,16 +50,16 @@ var arangoMigrateCmd = &cobra.Command{
 		}
 
 		migration := arango.NewMigration(db.Database(ctx, dbConfig.ArangoDB.DBName), &dbConfig.ArangoDB)
-		err = migration.Apply(dirFlag, versionFlag)
+		err = migration.Rollback(dirFlag, versionFlag)
 		if err != nil {
-			cmd.PrintErrf("Error while applying migration:\n\t %v", err)
+			cmd.PrintErrf("Error while rolling migration back:\n\t %v", err)
 			return
 		}
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(arangoMigrateCmd)
-	arangoMigrateCmd.Flags().String("dir", "./internal/database/arango/migrations", "Directory of the migrations")
-	arangoMigrateCmd.Flags().String("version", "", "Version of the migration that is going to be applied")
+	RootCmd.AddCommand(arangoRollbackCmd)
+	arangoRollbackCmd.Flags().String("dir", "./internal/database/arango/migrations", "Directory of the migrations")
+	arangoRollbackCmd.Flags().String("version", "", "Version of the migration that migrations will be rolled back to")
 }

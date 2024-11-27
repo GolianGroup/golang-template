@@ -105,10 +105,11 @@ func (a *arangoMigration) Apply(path string, version string) error {
 
 	if version != "" {
 		if slices.Contains(migrationFiles, version) && !slices.Contains(versions, version) {
-			collectionConf, err := readMigrationFile(version, path)
+			migrationConf, err := readMigrationFile(version, path)
 			if err != nil {
 				return err
 			}
+			collectionConf := migrationConf.Up
 
 			// Check if collection exists
 			exists, err := db.CollectionExists(ctx, collectionConf.CollectionName)
@@ -118,7 +119,7 @@ func (a *arangoMigration) Apply(path string, version string) error {
 			// If collection exists, update it
 			if exists {
 				//update collection
-				err = updateCollection(ctx, db, version, path)
+				err = updateCollection(ctx, db, collectionConf, version)
 				if err != nil {
 					return err
 				}
@@ -145,10 +146,11 @@ func (a *arangoMigration) Apply(path string, version string) error {
 	}
 
 	for _, file := range notMigratedFiles {
-		collectionConf, err := readMigrationFile(file, path)
+		migrationConf, err := readMigrationFile(file, path)
 		if err != nil {
 			return err
 		}
+		collectionConf := migrationConf.Up
 
 		// Check if collection exists
 		exists, err := db.CollectionExists(ctx, collectionConf.CollectionName)
@@ -158,7 +160,7 @@ func (a *arangoMigration) Apply(path string, version string) error {
 		// If collection exists, update it
 		if exists {
 			//update collection
-			err = updateCollection(ctx, db, file, path)
+			err = updateCollection(ctx, db, collectionConf, file)
 			if err != nil {
 				return err
 			}
@@ -177,28 +179,111 @@ func (a *arangoMigration) Apply(path string, version string) error {
 	return nil
 }
 
-func (a *arangoMigration) Rollback(path string, colName string) error {
+func (a *arangoMigration) Rollback(path string, version string) error {
 	ctx := context.Background()
 	db := a.db
 
-	exists, err := db.CollectionExists(ctx, colName)
-	if err != nil {
-		return err
-	}
-	if !exists {
-		log.Printf("Collection %s does not exist", colName)
-		return nil
-	}
-
-	col, err := db.GetCollection(ctx, colName, nil)
+	migrationVersions, err := getVersions(ctx, db)
 	if err != nil {
 		return err
 	}
 
-	err = col.Remove(ctx)
-	if err != nil {
-		log.Printf("Failed to remove collection %s", colName)
-		return err
+	if version == "" {
+		version = migrationVersions[len(migrationVersions)-1]
+		migrationConf, err := readMigrationFile(version, path)
+		if err != nil {
+			return err
+		}
+		collectionConf := migrationConf.Down
+
+		rule, ok := collectionConf.Properties.Schema.Rule.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("incorrect type of rule")
+		}
+		// If collection's schema's rule is and empty json, remove the collection
+		if len(rule) == 0 {
+			collection, err := db.GetCollection(ctx, collectionConf.CollectionName, nil)
+			if err != nil {
+				log.Println("Failed to get collection", collectionConf.CollectionName)
+				return err
+			}
+			err = collection.Remove(ctx)
+			if err != nil {
+				log.Println("Failed to remove collection ", collectionConf.CollectionName)
+				return err
+			}
+			err = deleteMigrationRecord(ctx, db, version)
+			if err != nil {
+				return err
+			}
+		} else {
+			// If collection's schema's rule is not empty, update the collection
+			err = updateCollection(ctx, db, collectionConf, version)
+			if err != nil {
+				log.Println("Failed to update collection ", collectionConf.CollectionName)
+				return err
+			}
+			err = deleteMigrationRecord(ctx, db, version)
+			if err != nil {
+				return err
+			}
+		}
+		log.Printf("Collection %s updated", collectionConf.CollectionName)
+		log.Println("Migrations rolled back successfully")
+	} else {
+		if !slices.Contains(migrationVersions, version) {
+			log.Println("Failed to find migration: ", version)
+			return fmt.Errorf("no applied migration with this version found: %s", version)
+		}
+
+		var rollbackArray []string
+		for i, v := range migrationVersions {
+			if v == version {
+				for j := i + 1; j < len(migrationVersions); j++ {
+					rollbackArray = append(rollbackArray, migrationVersions[j])
+				}
+				break
+			}
+		}
+
+		for _, element := range rollbackArray {
+			migrationConf, err := readMigrationFile(element, path)
+			if err != nil {
+				return err
+			}
+			collectionConf := migrationConf.Down
+
+			// If collection's schema's rule is and empty json, remove the collection
+			if collectionConf.Properties.Schema.Rule == nil {
+				collection, err := db.GetCollection(ctx, collectionConf.CollectionName, nil)
+				if err != nil {
+					log.Println("Failed to get collection", collectionConf.CollectionName)
+					return err
+				}
+				err = collection.Remove(ctx)
+				if err != nil {
+					log.Println("Failed to remove collection ", collectionConf.CollectionName)
+					return err
+				}
+				err = deleteMigrationRecord(ctx, db, element)
+				if err != nil {
+					return err
+				}
+			} else {
+				// If collection's schema's rule is not empty, update the collection
+				err = updateCollection(ctx, db, collectionConf, version)
+				if err != nil {
+					log.Println("Failed to update collection ", collectionConf.CollectionName)
+					return err
+				}
+				err = deleteMigrationRecord(ctx, db, element)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		log.Println("Migrations rolled back to: ", version)
 	}
 
 	return nil
@@ -301,9 +386,13 @@ type collectionConfig struct {
 	Options        arangodb.CreateCollectionOptions    `json:"options"`
 	Properties     arangodb.CreateCollectionProperties `json:"properties"`
 }
+type migration struct {
+	Up   collectionConfig
+	Down collectionConfig
+}
 
 func generateTemplate() ([]byte, error) {
-	log.Println("Generating migration file")
+	log.Println("Generating migration file ...")
 	enforceReplicationFactor := true
 	config := collectionConfig{
 		CollectionName: "collection_name",
@@ -342,7 +431,12 @@ func generateTemplate() ([]byte, error) {
 		},
 	}
 
-	byteFile, err := json.MarshalIndent(&config, "", "  ")
+	migration := migration{
+		Up:   config,
+		Down: config,
+	}
+
+	byteFile, err := json.MarshalIndent(&migration, "", "  ")
 	if err != nil {
 		log.Println("Failed to convert json to byte:", err)
 		return nil, err
@@ -352,10 +446,11 @@ func generateTemplate() ([]byte, error) {
 }
 
 func createCollection(ctx context.Context, db arangodb.Database, version string, path string) (arangodb.Collection, error) {
-	collectionConf, err := readMigrationFile(version, path)
+	migrationConf, err := readMigrationFile(version, path)
 	if err != nil {
 		return nil, err
 	}
+	collectionConf := migrationConf.Up
 
 	options := arangodb.CreateCollectionOptions{
 		EnforceReplicationFactor: collectionConf.Options.EnforceReplicationFactor,
@@ -392,6 +487,8 @@ func createCollection(ctx context.Context, db arangodb.Database, version string,
 		return nil, err
 	}
 
+	collection.Properties(ctx)
+
 	key, err := addMigrationRecord(ctx, db, version)
 	if err != nil {
 		err = deleteMigrationRecord(ctx, db, key)
@@ -404,15 +501,15 @@ func createCollection(ctx context.Context, db arangodb.Database, version string,
 	return collection, nil
 }
 
-func readMigrationFile(version string, path string) (collectionConfig, error) {
+func readMigrationFile(version string, path string) (migration, error) {
 	// Get and read the file content we want to apply
 	files, err := os.ReadDir(path)
 	if err != nil {
-		return collectionConfig{}, fmt.Errorf("failed to read directory: %v", err)
+		return migration{}, fmt.Errorf("failed to read directory: %v", err)
 	}
 
 	var byteContent []byte
-	var collectionConf collectionConfig
+	var migrationConf migration
 	var fileName string
 	for _, file := range files {
 		if strings.Contains(file.Name(), version) {
@@ -420,19 +517,19 @@ func readMigrationFile(version string, path string) (collectionConfig, error) {
 			byteContent, err = os.ReadFile(filepath.Join(path, file.Name()))
 			if err != nil {
 				log.Printf("Failed to read file %s: %v", file.Name(), err)
-				return collectionConfig{}, err
+				return migration{}, err
 			}
 			break
 		}
 	}
 
-	err = json.Unmarshal(byteContent, &collectionConf)
+	err = json.Unmarshal(byteContent, &migrationConf)
 	if err != nil {
 		log.Printf("Failed to convert %s to collectionConfig: %v", fileName, err)
-		return collectionConfig{}, err
+		return migration{}, err
 	}
 
-	return collectionConf, nil
+	return migrationConf, nil
 }
 
 func addMigrationRecord(ctx context.Context, db arangodb.Database, version string) (string, error) {
@@ -451,26 +548,39 @@ func addMigrationRecord(ctx context.Context, db arangodb.Database, version strin
 	return doc.Key, nil
 }
 
-func deleteMigrationRecord(ctx context.Context, db arangodb.Database, key string) error {
-	collection, err := db.GetCollection(ctx, "migrations_record", nil)
+func deleteMigrationRecord(ctx context.Context, db arangodb.Database, version string) error {
+	_, err := db.GetCollection(ctx, "migrations_record", nil)
 	if err != nil {
 		return err
 	}
 
-	_, err = collection.DeleteDocument(ctx, key)
+	query := `
+		FOR doc IN migrations_record
+			FILTER doc.version == @version
+			REMOVE doc IN migrations_record
+			RETURN OLD
+	`
+	opts := arangodb.QueryOptions{
+		BindVars: map[string]interface{}{
+			"version": version,
+		},
+	}
+
+	cursor, err := db.Query(ctx, query, &opts)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to execute query: %w", err)
+	}
+	defer cursor.Close()
+
+	// Check if the document was deleted
+	if !cursor.HasMore() {
+		return fmt.Errorf("no document found with version: %s", version)
 	}
 
 	return nil
 }
 
-func updateCollection(ctx context.Context, db arangodb.Database, version string, path string) error {
-	collectionConf, err := readMigrationFile(version, path)
-	if err != nil {
-		return err
-	}
-
+func updateCollection(ctx context.Context, db arangodb.Database, collectionConf collectionConfig, version string) error {
 	properties := arangodb.SetCollectionPropertiesOptions{
 		WaitForSync:       &collectionConf.Properties.WaitForSync,
 		JournalSize:       collectionConf.Properties.JournalSize,
@@ -493,9 +603,9 @@ func updateCollection(ctx context.Context, db arangodb.Database, version string,
 		return err
 	}
 
-	key, err := addMigrationRecord(ctx, db, version)
+	_, err = addMigrationRecord(ctx, db, version)
 	if err != nil {
-		err = deleteMigrationRecord(ctx, db, key)
+		err = deleteMigrationRecord(ctx, db, version)
 		if err != nil {
 			return err
 		}
