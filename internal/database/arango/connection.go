@@ -69,7 +69,7 @@ func (a *arangoDB) VideoCollection(ctx context.Context) (arangodb.Collection, er
 		SkipExistCheck: false,
 	}
 
-	videoCollection, err := a.database.GetCollection(ctx, "video_collection", &options)
+	videoCollection, err := a.database.GetCollection(ctx, "videos_collection", &options)
 	if err != nil {
 		return nil, err
 	}
