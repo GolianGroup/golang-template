@@ -48,7 +48,7 @@ var arangoMigrateCmd = &cobra.Command{
 			return
 		}
 
-		migration := arango.NewMigration(db.Database(ctx, dbConfig.ArangoDB.DBName), &dbConfig.ArangoDB)
+		migration := arango.NewMigration(db.Database(ctx), &dbConfig.ArangoDB)
 		err = migration.Apply(dirFlag, versionFlag)
 		if err != nil {
 			cmd.PrintErrf("Error while applying migration:\n\t %v", err)

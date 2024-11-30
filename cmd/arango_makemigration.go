@@ -46,7 +46,7 @@ var arangoMakemigrationCmd = &cobra.Command{
 			return
 		}
 
-		migration := arango.NewMigration(db.Database(ctx, dbConfig.ArangoDB.DBName), &dbConfig.ArangoDB)
+		migration := arango.NewMigration(db.Database(ctx), &dbConfig.ArangoDB)
 		err = migration.CreateFile(dirFlag, name)
 		if err != nil {
 			cmd.PrintErrf("Error while creating migration file:\n\t %v", err)

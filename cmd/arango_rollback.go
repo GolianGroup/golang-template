@@ -49,7 +49,7 @@ var arangoRollbackCmd = &cobra.Command{
 			return
 		}
 
-		migration := arango.NewMigration(db.Database(ctx, dbConfig.ArangoDB.DBName), &dbConfig.ArangoDB)
+		migration := arango.NewMigration(db.Database(ctx), &dbConfig.ArangoDB)
 		err = migration.Rollback(dirFlag, versionFlag)
 		if err != nil {
 			cmd.PrintErrf("Error while rolling migration back:\n\t %v", err)

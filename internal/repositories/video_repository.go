@@ -20,6 +20,7 @@ type VideoRepository interface {
 }
 
 type videoRepository struct {
+	database        arango.ArangoDB
 	videoCollection arangodb.Collection
 	ctx             context.Context
 }
@@ -31,6 +32,7 @@ func NewVideoRepository(db arango.ArangoDB, ctx context.Context) (VideoRepositor
 		return nil, err
 	}
 	return &videoRepository{
+		database:        db,
 		videoCollection: videoCollection,
 		ctx:             ctx,
 	}, nil
@@ -38,7 +40,9 @@ func NewVideoRepository(db arango.ArangoDB, ctx context.Context) (VideoRepositor
 
 func (c videoRepository) Get(key string) (*dao.Video, error) {
 	var video dao.Video
-	_, err := c.videoCollection.ReadDocument(c.ctx, key, &video)
+
+	opts := arangodb.CollectionDocumentReadOptions{}
+	_, err := c.database.ReadDocumentWithOptions(c.ctx, c.videoCollection, key, &video, &opts)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +51,8 @@ func (c videoRepository) Get(key string) (*dao.Video, error) {
 }
 
 func (c videoRepository) Create(video dto.Video) error {
-	_, err := c.videoCollection.CreateDocument(c.ctx, video)
+	opts := arangodb.CollectionDocumentCreateOptions{}
+	_, err := c.database.CreateDocumentWithOptions(c.ctx, c.videoCollection, video, &opts)
 	if err != nil {
 		return err
 	}
@@ -63,7 +68,7 @@ func (c videoRepository) Update(videoUpdate dto.VideoUpdate) (*dao.Video, error)
 		NewObject:       &video,
 		KeepNull:        &keepNull,
 	}
-	_, err := c.videoCollection.UpdateDocumentWithOptions(c.ctx, videoUpdate.Key, videoUpdate, &options)
+	_, err := c.database.UpdateDocumentWithOptions(c.ctx, c.videoCollection, videoUpdate.Key, videoUpdate, &options)
 	if err != nil {
 		return nil, err
 	}
@@ -72,8 +77,11 @@ func (c videoRepository) Update(videoUpdate dto.VideoUpdate) (*dao.Video, error)
 }
 
 func (c videoRepository) Delete(key string) error {
-	_, err := c.videoCollection.DeleteDocument(c.ctx, key)
-	return err
+	err := c.database.DeleteDocumentWithOptions(c.ctx, c.videoCollection, key, nil)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c videoRepository) GetByName(name string) (*dao.VideoByName, error) {
@@ -90,17 +98,17 @@ func (c videoRepository) GetByName(name string) (*dao.VideoByName, error) {
 			"name":        name,
 		},
 	}
-	cursor, err := c.videoCollection.Database().Query(c.ctx, query, &opts)
+	cursor, err := c.database.Query(c.ctx, query, opts)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close()
+	defer c.database.CloseCursor(cursor)
 
-	if !cursor.HasMore() {
+	if !c.database.CursorHasMore(cursor) {
 		return nil, fmt.Errorf("video not found")
 	}
 
-	_, err = cursor.ReadDocument(c.ctx, &video)
+	_, err = c.database.CursorReadDocument(c.ctx, cursor, &video)
 	if err != nil {
 		return nil, err
 	}
