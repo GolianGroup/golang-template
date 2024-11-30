@@ -29,7 +29,7 @@ func (c videoController) GetVideo(ctx *fiber.Ctx) error {
 	key := ctx.Params("key")
 	video, err := c.service.GetVideo(key)
 	if err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err})
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err})
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(video)
@@ -43,9 +43,9 @@ func (c videoController) CreateVideo(ctx *fiber.Ctx) error {
 	}
 	err = c.service.CreateVideo(video)
 	if err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err})
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err})
 	}
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "success"})
+	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "success"})
 }
 
 func (c videoController) UpdateVideo(ctx *fiber.Ctx) error {
@@ -56,7 +56,7 @@ func (c videoController) UpdateVideo(ctx *fiber.Ctx) error {
 	}
 	video, err := c.service.UpdateVideo(videoUpdate)
 	if err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err})
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err})
 	}
 	return ctx.Status(fiber.StatusOK).JSON(video)
 }
@@ -65,7 +65,7 @@ func (c videoController) DeleteVideo(ctx *fiber.Ctx) error {
 	key := ctx.Params("key")
 	err := c.service.DeleteVideo(key)
 	if err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err})
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err})
 	}
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "success"})
 }
@@ -74,7 +74,7 @@ func (c videoController) GetVideoByName(ctx *fiber.Ctx) error {
 	name := ctx.Query("name")
 	video, err := c.service.GetVideoByName(name)
 	if err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err})
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err})
 	}
 	return ctx.Status(fiber.StatusOK).JSON(video)
 }
