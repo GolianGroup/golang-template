@@ -6,6 +6,8 @@ import (
 	"golang_template/internal/services"
 	"golang_template/internal/services/dto"
 
+	"golang_template/internal/logging"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -35,25 +37,29 @@ var (
 	}
 )
 
+
 type UserController interface {
 	Login(ctx *fiber.Ctx) error
 }
 
 type userController struct {
 	service services.UserService
+	logger logging.Logger
 }
 
 // inject user service to user controller
 
-func NewUserController(service services.UserService) UserController {
-	return &userController{service: service}
+func NewUserController(service services.UserService, logger logging.Logger) UserController {
+	return &userController{service: service, logger: logger}
 }
 
 func (c *userController) Login(ctx *fiber.Ctx) error {
+	c.logger.Info("Request recieved")
 	userDto := dto.User{}
 	err := ctx.BodyParser(&userDto)
 
 	if err != nil {
+		c.logger.Error("Request Failed")
 		return ctx.Status(ErrParseRequest.Code).JSON(ErrParseRequest)
 	}
 
