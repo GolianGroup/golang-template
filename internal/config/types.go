@@ -7,6 +7,7 @@ type Config struct {
 	Redis    RedisConfig    `mapstructure:"redis" validate:"required"`
 	JWT      JWTConfig      `mapstructure:"jwt" validate:"required"`
 	LogLevel string         `mapstructure:"log_level" validate:"required,oneof=debug info warn error"`
+	ArangoDB ArangoConfig   `mapstructure:"arango" validate:"required"`
 }
 
 // ServerConfig holds all server related configuration
@@ -50,4 +51,12 @@ type JWTConfig struct {
 	Secret           string `mapstructure:"secret" validate:"required,min=32"`
 	ExpireHour       int    `mapstructure:"expire_hour" validate:"required,min=1"`
 	RefreshExpireDay int    `mapstructure:"refresh_expire_day" validate:"required,min=1"`
+}
+
+type ArangoConfig struct {
+	ConnStrs           string `mapstructure:"conn_strs" validate:"required"`
+	InsecureSkipVerify bool   `mapstructure:"insecure_skip_verify" validate:"required"`
+	DBName             string `mapstructure:"db_name" validate:"required"`
+	User               string `mapstructure:"user" validate:"required"`
+	Pass               string `mapstructure:"password" validate:"required"`
 }

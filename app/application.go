@@ -4,7 +4,7 @@ import (
 	"context"
 	"golang_template/handler/routers"
 	"golang_template/internal/config"
-	"golang_template/internal/database"
+	"golang_template/internal/database/postgres"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -36,8 +36,9 @@ func (a *application) Setup() {
 			a.InitRepositories,
 			a.InitRedis,
 			a.InitDatabase,
+			a.InitArangoDB,
 		),
-		fx.Invoke(func(lc fx.Lifecycle, db database.Database) {
+		fx.Invoke(func(lc fx.Lifecycle, db postgres.Database) {
 			lc.Append(fx.Hook{
 				OnStop: func(ctx context.Context) error {
 					log.Println(db.Close())

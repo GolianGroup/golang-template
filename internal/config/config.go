@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
+	"golang.org/x/exp/slices"
 )
 
 // LoadConfig loads configuration from file and environment variables
@@ -72,4 +73,27 @@ func GetDSN(cfg *DatabaseConfig) string {
 		cfg.DBName,
 		cfg.SSLMode,
 	)
+}
+
+// GetRedisAddr returns redis connection address
+func GetRedisAddr(cfg *RedisConfig) string {
+	return fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
+}
+
+func GetArangoStrings(cfg *ArangoConfig) ([]string, error) {
+	connections := strings.Split(cfg.ConnStrs, ",")
+
+	allowedProtocols := []string{"tcp", "http", "https", "ssl", "unix", "http+tcp", "http+srv", "http+ssl", "http+unix"}
+
+	for _, conn := range connections {
+		parts := strings.SplitN(conn, "://", 2)
+		if len(parts) != 2 {
+			return nil, fmt.Errorf("invalid connection string: %s", conn)
+		}
+		if !slices.Contains(allowedProtocols, parts[0]) {
+			return nil, fmt.Errorf("invalid protocol: %s in connection string: %s", parts[0], conn)
+		}
+	}
+
+	return connections, nil
 }
