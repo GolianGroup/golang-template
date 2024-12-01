@@ -34,6 +34,7 @@ func (a *application) Setup() {
 			a.InitController,
 			a.InitServices,
 			a.InitRepositories,
+			a.InitRedis,
 			a.InitDatabase,
 			a.InitArangoDB,
 		),
