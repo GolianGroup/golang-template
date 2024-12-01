@@ -55,6 +55,7 @@ func NewUserController(service services.UserService, logger logging.Logger) User
 
 func (c *userController) Login(ctx *fiber.Ctx) error {
 	c.logger.Info("Request recieved")
+
 	userDto := dto.User{}
 	err := ctx.BodyParser(&userDto)
 
