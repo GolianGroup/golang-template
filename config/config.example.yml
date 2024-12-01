@@ -50,3 +50,12 @@ logger:
     max_size: 500
     max_backups: 2
     max_age: 1
+  fluentbit_config:
+    host: "127.0.0.1"
+    port: 24224
+    tag: "test.template"
+  
+  tracer:
+  service_name: "test"
+  insecure: "true"
+  collector_url: "localhost:4317"
