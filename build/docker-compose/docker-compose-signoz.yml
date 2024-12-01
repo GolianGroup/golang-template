@@ -42,7 +42,7 @@ x-db-depend: &db-depend
     #   condition: service_healthy
 
 services:
-
+  
   zookeeper-1:
     image: bitnami/zookeeper:3.7.1
     container_name: signoz-zookeeper-1
@@ -294,3 +294,10 @@ services:
     depends_on:
       - otel-collector
     restart: on-failure
+  fluentbit:
+    image: fluent/fluent-bit:latest
+    container_name: fluent-bit
+    ports:
+      - "127.0.0.1:24224:24224"
+    command: /fluent-bit/bin/fluent-bit -i forward -p format=json_lines -f 1
+    restart: unless-stopped
