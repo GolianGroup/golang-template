@@ -23,5 +23,5 @@ func NewUserRouter(userController controllers.UserController, redisClient produc
 func (r userRouter) AddRoutes(router fiber.Router) {
 	// init routes for user
 	// has controller
-	router.Get("/user", r.Controller.Login)
+	router.Post("/user", r.Controller.Login)
 }

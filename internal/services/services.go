@@ -28,3 +28,7 @@ func (s *service) UserService() UserService {
 func (s *service) VideoService() VideoService {
 	return s.videoService
 }
+
+func (s *service) UserService() UserService {
+	return s.userService
+}

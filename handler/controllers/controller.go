@@ -15,13 +15,15 @@ type controllers struct {
 	videoController VideoController
 }
 
-func NewControllers(services services.Service, logger logging.Logger) Controllers {
-	userController := NewUserController(logger)
+
+func NewControllers(s services.Service, logger logging.Logger) Controllers {
+	userController := NewUserController(s.UserService(), logger)
 	videoController := NewVideoController(services.VideoService())
 	return &controllers{
 		userController:  userController,
 		videoController: videoController,
 	}
+	return &controllers{userController: userController}
 }
 
 func (c *controllers) UserController() UserController {
