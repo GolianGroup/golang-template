@@ -2,6 +2,7 @@ package routers
 
 import (
 	"golang_template/handler/controllers"
+	"golang_template/internal/producers"
 
 	"golang_template/handler/middlewares"
 
@@ -15,14 +16,17 @@ type Router interface {
 }
 
 type router struct {
+	redisClient producers.RedisClient
+
 	userRouter UserRouter
 	tracer     trace.Tracer
 }
 
-func NewRouter(controllers controllers.Controllers, tracer oteltrace.Tracer) Router {
-	userRouter := NewUserRouter(controllers.UserController())
+func NewRouter(controllers controllers.Controllers, redisClient producers.RedisClient, tracer oteltrace.Tracer) Router {
+	userRouter := NewUserRouter(controllers.UserController(), redisClient)
 	return &router{userRouter: userRouter,
-		tracer: tracer}
+		redisClient: redisClient,
+		tracer:      tracer}
 }
 
 func (r router) AddRoutes(router fiber.Router) {
