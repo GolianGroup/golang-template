@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
+	"go.uber.org/zap/zapcore"
 	"golang.org/x/exp/slices"
 )
 
@@ -80,6 +81,26 @@ func GetRedisAddr(cfg *RedisConfig) string {
 	return fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
 }
 
+// NewProductionEncoderConfig returns an opinionated EncoderConfig for
+// production environments.
+//
+// for more information about fields check the documentation
+func NewLoggerEncoderConfig(cfg *LoggerEncoderConfig) zapcore.EncoderConfig {
+	return zapcore.EncoderConfig{
+		TimeKey:        "ts",
+		LevelKey:       cfg.LevelKey, // The logging level (e.g. "info", "error").
+		NameKey:        cfg.NameKey,
+		CallerKey:      "caller",
+		FunctionKey:    zapcore.OmitKey,
+		MessageKey:     cfg.MessageKey, // The message passed to the log statement.
+		StacktraceKey:  "stacktrace",
+		LineEnding:     zapcore.DefaultLineEnding,
+		EncodeLevel:    zapcore.LowercaseLevelEncoder,
+		EncodeTime:     zapcore.EpochTimeEncoder,
+		EncodeDuration: zapcore.SecondsDurationEncoder,
+		EncodeCaller:   zapcore.ShortCallerEncoder,
+	}
+}
 func GetArangoStrings(cfg *ArangoConfig) ([]string, error) {
 	connections := strings.Split(cfg.ConnStrs, ",")
 
