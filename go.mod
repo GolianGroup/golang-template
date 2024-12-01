@@ -20,11 +20,10 @@ require (
 	github.com/valyala/fasthttp v1.57.0
 	go.uber.org/fx v1.23.0
 	go.uber.org/mock v0.5.0
-	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f
-	gotest.tools/v3 v3.5.1
 	go.uber.org/zap v1.26.0
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
+	gotest.tools/v3 v3.5.1
 )
 
 require (
@@ -107,7 +106,6 @@ require (
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tinylib/msgp v1.1.8 // indirect
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect

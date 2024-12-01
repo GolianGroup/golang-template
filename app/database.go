@@ -17,10 +17,10 @@ func (a *application) InitDatabase(logger logging.Logger) postgres.Database {
 	return db
 }
 
-func (a *application) InitArangoDB() arango.ArangoDB {
+func (a *application) InitArangoDB(logger logging.Logger) arango.ArangoDB {
 	db, err := arango.NewArangoDB(a.ctx, &a.config.ArangoDB)
 	if err != nil {
-		log.Fatalf("failed to setup arango database: %s", err)
+		logger.Fatal("Failed to start arango database", zap.Error(err))
 	}
 	return db
 }

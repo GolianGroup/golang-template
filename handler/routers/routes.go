@@ -14,6 +14,7 @@ type Router interface {
 type router struct {
 	userRouter  UserRouter
 	videoRouter VideoRouter
+	redisClient producers.RedisClient
 }
 
 
@@ -23,8 +24,8 @@ func NewRouter(controllers controllers.Controllers, redisClient producers.RedisC
 	return &router{
 		userRouter:  userRouter,
 		videoRouter: videoRouter,
+		redisClient: redisClient,
 	}
-	return &router{userRouter: userRouter, redisClient: redisClient}
 }
 
 func (r router) AddRoutes(router fiber.Router) {
