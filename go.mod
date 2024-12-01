@@ -8,7 +8,6 @@ require (
 	entgo.io/ent v0.14.1
 	github.com/arangodb/go-driver/v2 v2.1.2
 	github.com/go-playground/validator/v10 v10.23.0
-	github.com/gofiber/contrib/otelfiber/v2 v2.1.1
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/gofiber/storage/redis/v3 v3.1.2
 	github.com/google/uuid v1.6.0
@@ -16,12 +15,12 @@ require (
 	github.com/pressly/goose v2.7.0+incompatible
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.19.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.19.0
-	go.opentelemetry.io/otel/sdk v1.32.0
 	github.com/stretchr/testify v1.9.0
 	github.com/testcontainers/testcontainers-go v0.34.0
 	github.com/valyala/fasthttp v1.57.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.19.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.19.0
+	go.opentelemetry.io/otel/sdk v1.32.0
 	go.uber.org/fx v1.23.0
 	go.uber.org/mock v0.5.0
 	go.uber.org/zap v1.26.0
@@ -46,7 +45,6 @@ require (
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	go.opentelemetry.io/contrib v1.32.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.0.0 // indirect
 	go.uber.org/dig v1.18.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240318140521-94a12d6c2237 // indirect
@@ -109,9 +107,8 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
-	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/redis/go-redis/v9 v9.5.3 // indirect
-	github.com/rivo/uniseg v0.2.0 // indirect
+	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rs/zerolog v1.33.0 // indirect
 	github.com/shirou/gopsutil/v3 v3.23.12 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
