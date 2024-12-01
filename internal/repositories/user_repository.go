@@ -31,8 +31,8 @@ var (
 )
 
 type UserRepository interface {
-	Get(ctx context.Context, userDto *ent.User) (*ent.User, error)
-	Create(ctx context.Context, userData *ent.User) error
+	Get(ctx context.Context, user *ent.User) (*ent.User, error)
+	Create(ctx context.Context, user *ent.User) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
