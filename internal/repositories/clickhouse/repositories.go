@@ -10,10 +10,10 @@ type ClickhouseRepository interface {
 // var (
 // ErrGlobal = errors.New("some global error")
 // )
-
 type repository struct {
+	db clickhouse.ClickhouseDatabase
 }
 
 func NewRepository(db clickhouse.ClickhouseDatabase) ClickhouseRepository {
-	return &repository{}
+	return &repository{db: db}
 }
