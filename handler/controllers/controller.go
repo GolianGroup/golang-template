@@ -1,6 +1,9 @@
 package controllers
 
-import "golang_template/internal/services"
+import (
+	"golang_template/internal/logging"
+	"golang_template/internal/services"
+)
 
 type Controllers interface {
 	UserController() UserController
@@ -12,8 +15,8 @@ type controllers struct {
 	videoController VideoController
 }
 
-func NewControllers(services services.Service) Controllers {
-	userController := NewUserController()
+func NewControllers(services services.Service, logger logging.Logger) Controllers {
+	userController := NewUserController(logger)
 	videoController := NewVideoController(services.VideoService())
 	return &controllers{
 		userController:  userController,
