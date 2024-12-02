@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: ../../
+      dockerfile: ./build/dockerfile/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - arango
+      - redis
+      - clickhouse
+
+  postgres:
+    image: postgres:latest
+    container_name: template-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: myapp
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+
+  arango:
+    image: arangodb:latest
+    container_name: template-arango
+    restart: always
+    environment:
+      ARANGO_ROOT_PASSWORD: rootpassword
+    volumes:
+      - arango_data:/var/lib/arangodb3
+    ports:
+      - "8529:8529"
+
+  clickhouse:
+    image: yandex/clickhouse-server:latest
+    container_name: template-clickhouse
+    ports:
+      - "8123:8123"
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse/data/
+    environment:
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+
+  redis:
+    image: redis:latest
+    container_name: template-redis
+    restart: always
+    environment:
+      REDIS_PASSWORD: ""
+      REDIS_DATABASES: 1
+      REDIS_PORT: 6379
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/var/lib/redis/data/
+
+volumes:
+  postgres_data:
+  arango_data:
+  clickhouse_data:
+  redis_data:
