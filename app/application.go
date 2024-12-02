@@ -39,16 +39,22 @@ func (a *application) Setup() {
 			a.InitDatabase,
 			a.InitArangoDB,
 			a.InitLogger,
+			a.InitTracerProvider,
 		),
-		fx.Invoke(func(lc fx.Lifecycle, db postgres.Database, logger logging.Logger) {
+		fx.Invoke(func(lc fx.Lifecycle, db postgres.Database) {
+			// Init Tracer
+			shutdownTracer := a.InitTracer()
 			lc.Append(fx.Hook{
 				OnStop: func(ctx context.Context) error {
-					logger.Error("Failed to start database")
+					if err := shutdownTracer(ctx); err != nil {
+						log.Printf("Error shutting down tracer: %v", err) // this should change after logging branch get merged
+					}
 					log.Println(db.Close())
 					return nil
 				},
 			})
 		}),
+
 		fx.Invoke(func(app *fiber.App, router routers.Router, logger logging.Logger) {
 			logger.Info("Server Started")
 			log.Fatal(app.Listen(a.config.Server.Host + ":" + a.config.Server.Port))

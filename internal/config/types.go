@@ -8,6 +8,7 @@ type Config struct {
 	JWT      JWTConfig      `mapstructure:"jwt" validate:"required"`
 	Logger   LoggerConfig   `mapstructure:"logger" validate:"required"`
 	ArangoDB ArangoConfig   `mapstructure:"arango" validate:"required"`
+	Tracer   TracerConfig   `mapstructure:"tracer" validate:"required"`
 }
 
 // ServerConfig holds all server related configuration
@@ -77,4 +78,11 @@ type ArangoConfig struct {
 	DBName             string `mapstructure:"db_name" validate:"required"`
 	User               string `mapstructure:"user" validate:"required"`
 	Pass               string `mapstructure:"password" validate:"required"`
+}
+
+// Signoz Otel tracer configuration
+type TracerConfig struct {
+	ServiceName  string `mapstructure:"service_name" validate:"required"`
+	CollectorUrl string `mapstructure:"collector_url" validate:"required"`
+	Insecure     string `mapstructure:"insecure" validate:"required"`
 }
