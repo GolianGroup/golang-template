@@ -10,8 +10,7 @@
 package mocks
 
 import (
-	dao "golang_template/internal/repositories/dao"
-	dto "golang_template/internal/repositories/dto"
+	models "golang_template/internal/repositories/models"
 	reflect "reflect"
 
 	gomock "go.uber.org/mock/gomock"
@@ -42,7 +41,7 @@ func (m *MockVideoRepository) EXPECT() *MockVideoRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockVideoRepository) Create(video dto.Video) error {
+func (m *MockVideoRepository) Create(video models.Video) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", video)
 	ret0, _ := ret[0].(error)
@@ -70,10 +69,10 @@ func (mr *MockVideoRepositoryMockRecorder) Delete(key any) *gomock.Call {
 }
 
 // Get mocks base method.
-func (m *MockVideoRepository) Get(key string) (*dao.Video, error) {
+func (m *MockVideoRepository) Get(key string) (*models.Video, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", key)
-	ret0, _ := ret[0].(*dao.Video)
+	ret0, _ := ret[0].(*models.Video)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -85,10 +84,10 @@ func (mr *MockVideoRepositoryMockRecorder) Get(key any) *gomock.Call {
 }
 
 // GetByName mocks base method.
-func (m *MockVideoRepository) GetByName(name string) (*dao.VideoByName, error) {
+func (m *MockVideoRepository) GetByName(name string) (*models.Video, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByName", name)
-	ret0, _ := ret[0].(*dao.VideoByName)
+	ret0, _ := ret[0].(*models.Video)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -100,10 +99,10 @@ func (mr *MockVideoRepositoryMockRecorder) GetByName(name any) *gomock.Call {
 }
 
 // Update mocks base method.
-func (m *MockVideoRepository) Update(videoUpdate dto.VideoUpdate) (*dao.Video, error) {
+func (m *MockVideoRepository) Update(videoUpdate models.Video) (*models.Video, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", videoUpdate)
-	ret0, _ := ret[0].(*dao.Video)
+	ret0, _ := ret[0].(*models.Video)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

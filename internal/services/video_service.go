@@ -2,7 +2,7 @@ package services
 
 import (
 	"golang_template/internal/repositories"
-	repoDto "golang_template/internal/repositories/dto"
+	"golang_template/internal/repositories/models"
 	"golang_template/internal/services/dao"
 	"golang_template/internal/services/dto"
 )
@@ -45,7 +45,7 @@ func (s videoService) GetVideo(key string) (*dao.Video, error) {
 }
 
 func (s videoService) CreateVideo(video dto.Video) error {
-	createVideo := repoDto.Video{
+	createVideo := models.Video{
 		Publishable: video.Publishable,
 		Categories:  video.Categories,
 		Description: video.Description,
@@ -61,7 +61,7 @@ func (s videoService) CreateVideo(video dto.Video) error {
 }
 
 func (s videoService) UpdateVideo(videoUpdate dto.VideoUpdate) (*dao.Video, error) {
-	updateVideo := repoDto.VideoUpdate{
+	updateVideo := models.Video{
 		Key:         videoUpdate.Key,
 		Categories:  videoUpdate.Categories,
 		Description: videoUpdate.Description,

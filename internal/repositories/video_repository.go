@@ -4,45 +4,47 @@ import (
 	"context"
 	"fmt"
 	"golang_template/internal/database/arango"
-	"golang_template/internal/repositories/dao"
-	"golang_template/internal/repositories/dto"
+	"golang_template/internal/repositories/models"
 	"log"
 
 	"github.com/arangodb/go-driver/v2/arangodb"
 )
 
 type VideoRepository interface {
-	Get(key string) (*dao.Video, error)
-	Create(video dto.Video) error
-	Update(videoUpdate dto.VideoUpdate) (*dao.Video, error)
+	Get(key string) (*models.Video, error)
+	Create(video models.Video) error
+	Update(videoUpdate models.Video) (*models.Video, error)
 	Delete(key string) error
-	GetByName(name string) (*dao.VideoByName, error)
+	GetByName(name string) (*models.Video, error)
 }
 
 type videoRepository struct {
-	database        arango.ArangoDB
+	database        arangodb.Database
 	videoCollection arangodb.Collection
 	ctx             context.Context
 }
 
 func NewVideoRepository(db arango.ArangoDB, ctx context.Context) (VideoRepository, error) {
-	videoCollection, err := db.VideoCollection(ctx)
+	videoCollection, err := db.GetCollection(ctx, "videos_collection")
 	if err != nil {
-		log.Println("Failed to get video collection")
+		log.Println("Failed to get videos collection")
 		return nil, err
 	}
+
+	database := db.Database(ctx)
+
 	return &videoRepository{
-		database:        db,
+		database:        database,
 		videoCollection: videoCollection,
 		ctx:             ctx,
 	}, nil
 }
 
-func (c videoRepository) Get(key string) (*dao.Video, error) {
-	var video dao.Video
+func (c videoRepository) Get(key string) (*models.Video, error) {
+	var video models.Video
 
 	opts := arangodb.CollectionDocumentReadOptions{}
-	_, err := c.database.ReadDocumentWithOptions(c.ctx, c.videoCollection, key, &video, &opts)
+	_, err := c.videoCollection.ReadDocumentWithOptions(c.ctx, key, &video, &opts)
 	if err != nil {
 		return nil, err
 	}
@@ -50,17 +52,17 @@ func (c videoRepository) Get(key string) (*dao.Video, error) {
 	return &video, nil
 }
 
-func (c videoRepository) Create(video dto.Video) error {
+func (c videoRepository) Create(video models.Video) error {
 	opts := arangodb.CollectionDocumentCreateOptions{}
-	_, err := c.database.CreateDocumentWithOptions(c.ctx, c.videoCollection, video, &opts)
+	_, err := c.videoCollection.CreateDocumentWithOptions(c.ctx, video, &opts)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (c videoRepository) Update(videoUpdate dto.VideoUpdate) (*dao.Video, error) {
-	var video dao.Video
+func (c videoRepository) Update(videoUpdate models.Video) (*models.Video, error) {
+	var video models.Video
 	withWaitForSync := true
 	keepNull := true
 	options := arangodb.CollectionDocumentUpdateOptions{
@@ -68,7 +70,7 @@ func (c videoRepository) Update(videoUpdate dto.VideoUpdate) (*dao.Video, error)
 		NewObject:       &video,
 		KeepNull:        &keepNull,
 	}
-	_, err := c.database.UpdateDocumentWithOptions(c.ctx, c.videoCollection, videoUpdate.Key, videoUpdate, &options)
+	_, err := c.videoCollection.UpdateDocumentWithOptions(c.ctx, videoUpdate.Key, videoUpdate, &options)
 	if err != nil {
 		return nil, err
 	}
@@ -77,15 +79,15 @@ func (c videoRepository) Update(videoUpdate dto.VideoUpdate) (*dao.Video, error)
 }
 
 func (c videoRepository) Delete(key string) error {
-	err := c.database.DeleteDocumentWithOptions(c.ctx, c.videoCollection, key, nil)
+	_, err := c.videoCollection.DeleteDocumentWithOptions(c.ctx, key, nil)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (c videoRepository) GetByName(name string) (*dao.VideoByName, error) {
-	var video dao.VideoByName
+func (c videoRepository) GetByName(name string) (*models.Video, error) {
+	var video models.Video
 	query := `
 	FOR v IN @@collection
 		FILTER v.name == @name
@@ -98,17 +100,17 @@ func (c videoRepository) GetByName(name string) (*dao.VideoByName, error) {
 			"name":        name,
 		},
 	}
-	cursor, err := c.database.Query(c.ctx, query, opts)
+	cursor, err := c.database.Query(c.ctx, query, &opts)
 	if err != nil {
 		return nil, err
 	}
-	defer c.database.CloseCursor(cursor)
+	defer cursor.Close()
 
-	if !c.database.CursorHasMore(cursor) {
+	if !cursor.HasMore() {
 		return nil, fmt.Errorf("video not found")
 	}
 
-	_, err = c.database.CursorReadDocument(c.ctx, cursor, &video)
+	_, err = cursor.ReadDocument(c.ctx, &video)
 	if err != nil {
 		return nil, err
 	}

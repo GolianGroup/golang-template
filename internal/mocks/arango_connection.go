@@ -41,64 +41,6 @@ func (m *MockArangoDB) EXPECT() *MockArangoDBMockRecorder {
 	return m.recorder
 }
 
-// CloseCursor mocks base method.
-func (m *MockArangoDB) CloseCursor(cursor arangodb.Cursor) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CloseCursor", cursor)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// CloseCursor indicates an expected call of CloseCursor.
-func (mr *MockArangoDBMockRecorder) CloseCursor(cursor any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloseCursor", reflect.TypeOf((*MockArangoDB)(nil).CloseCursor), cursor)
-}
-
-// CreateDocumentWithOptions mocks base method.
-func (m *MockArangoDB) CreateDocumentWithOptions(ctx context.Context, collection arangodb.Collection, document any, opts *arangodb.CollectionDocumentCreateOptions) (arangodb.CollectionDocumentCreateResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateDocumentWithOptions", ctx, collection, document, opts)
-	ret0, _ := ret[0].(arangodb.CollectionDocumentCreateResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CreateDocumentWithOptions indicates an expected call of CreateDocumentWithOptions.
-func (mr *MockArangoDBMockRecorder) CreateDocumentWithOptions(ctx, collection, document, opts any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDocumentWithOptions", reflect.TypeOf((*MockArangoDB)(nil).CreateDocumentWithOptions), ctx, collection, document, opts)
-}
-
-// CursorHasMore mocks base method.
-func (m *MockArangoDB) CursorHasMore(cursor arangodb.Cursor) bool {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CursorHasMore", cursor)
-	ret0, _ := ret[0].(bool)
-	return ret0
-}
-
-// CursorHasMore indicates an expected call of CursorHasMore.
-func (mr *MockArangoDBMockRecorder) CursorHasMore(cursor any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CursorHasMore", reflect.TypeOf((*MockArangoDB)(nil).CursorHasMore), cursor)
-}
-
-// CursorReadDocument mocks base method.
-func (m *MockArangoDB) CursorReadDocument(ctx context.Context, cursor arangodb.Cursor, result any) (arangodb.DocumentMeta, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CursorReadDocument", ctx, cursor, result)
-	ret0, _ := ret[0].(arangodb.DocumentMeta)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CursorReadDocument indicates an expected call of CursorReadDocument.
-func (mr *MockArangoDBMockRecorder) CursorReadDocument(ctx, cursor, result any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CursorReadDocument", reflect.TypeOf((*MockArangoDB)(nil).CursorReadDocument), ctx, cursor, result)
-}
-
 // Database mocks base method.
 func (m *MockArangoDB) Database(ctx context.Context) arangodb.Database {
 	m.ctrl.T.Helper()
@@ -113,76 +55,17 @@ func (mr *MockArangoDBMockRecorder) Database(ctx any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Database", reflect.TypeOf((*MockArangoDB)(nil).Database), ctx)
 }
 
-// DeleteDocumentWithOptions mocks base method.
-func (m *MockArangoDB) DeleteDocumentWithOptions(ctx context.Context, collection arangodb.Collection, key string, opts *arangodb.CollectionDocumentDeleteOptions) error {
+// GetCollection mocks base method.
+func (m *MockArangoDB) GetCollection(ctx context.Context, name string) (arangodb.Collection, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteDocumentWithOptions", ctx, collection, key, opts)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// DeleteDocumentWithOptions indicates an expected call of DeleteDocumentWithOptions.
-func (mr *MockArangoDBMockRecorder) DeleteDocumentWithOptions(ctx, collection, key, opts any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDocumentWithOptions", reflect.TypeOf((*MockArangoDB)(nil).DeleteDocumentWithOptions), ctx, collection, key, opts)
-}
-
-// Query mocks base method.
-func (m *MockArangoDB) Query(ctx context.Context, queryString string, queryOpts arangodb.QueryOptions) (arangodb.Cursor, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Query", ctx, queryString, queryOpts)
-	ret0, _ := ret[0].(arangodb.Cursor)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Query indicates an expected call of Query.
-func (mr *MockArangoDBMockRecorder) Query(ctx, queryString, queryOpts any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Query", reflect.TypeOf((*MockArangoDB)(nil).Query), ctx, queryString, queryOpts)
-}
-
-// ReadDocumentWithOptions mocks base method.
-func (m *MockArangoDB) ReadDocumentWithOptions(ctx context.Context, collection arangodb.Collection, key string, result any, opts *arangodb.CollectionDocumentReadOptions) (arangodb.DocumentMeta, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReadDocumentWithOptions", ctx, collection, key, result, opts)
-	ret0, _ := ret[0].(arangodb.DocumentMeta)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ReadDocumentWithOptions indicates an expected call of ReadDocumentWithOptions.
-func (mr *MockArangoDBMockRecorder) ReadDocumentWithOptions(ctx, collection, key, result, opts any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadDocumentWithOptions", reflect.TypeOf((*MockArangoDB)(nil).ReadDocumentWithOptions), ctx, collection, key, result, opts)
-}
-
-// UpdateDocumentWithOptions mocks base method.
-func (m *MockArangoDB) UpdateDocumentWithOptions(ctx context.Context, collection arangodb.Collection, key string, value any, opts *arangodb.CollectionDocumentUpdateOptions) (arangodb.CollectionDocumentUpdateResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateDocumentWithOptions", ctx, collection, key, value, opts)
-	ret0, _ := ret[0].(arangodb.CollectionDocumentUpdateResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// UpdateDocumentWithOptions indicates an expected call of UpdateDocumentWithOptions.
-func (mr *MockArangoDBMockRecorder) UpdateDocumentWithOptions(ctx, collection, key, value, opts any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDocumentWithOptions", reflect.TypeOf((*MockArangoDB)(nil).UpdateDocumentWithOptions), ctx, collection, key, value, opts)
-}
-
-// VideoCollection mocks base method.
-func (m *MockArangoDB) VideoCollection(ctx context.Context) (arangodb.Collection, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "VideoCollection", ctx)
+	ret := m.ctrl.Call(m, "GetCollection", ctx, name)
 	ret0, _ := ret[0].(arangodb.Collection)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// VideoCollection indicates an expected call of VideoCollection.
-func (mr *MockArangoDBMockRecorder) VideoCollection(ctx any) *gomock.Call {
+// GetCollection indicates an expected call of GetCollection.
+func (mr *MockArangoDBMockRecorder) GetCollection(ctx, name any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VideoCollection", reflect.TypeOf((*MockArangoDB)(nil).VideoCollection), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCollection", reflect.TypeOf((*MockArangoDB)(nil).GetCollection), ctx, name)
 }

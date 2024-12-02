@@ -3,7 +3,7 @@ package services
 import (
 	"errors"
 	"golang_template/internal/mocks"
-	repoDao "golang_template/internal/repositories/dao"
+	"golang_template/internal/repositories/models"
 	"golang_template/internal/services/dao"
 	"golang_template/internal/services/dto"
 	"testing"
@@ -22,7 +22,7 @@ func TestVideoService(t *testing.T) {
 	service := NewVideoService(mockRepo)
 
 	t.Run("Get video by key successfully", func(t *testing.T) {
-		foundVideo := &repoDao.Video{
+		foundVideo := &models.Video{
 			Key:         "123",
 			Name:        "name",
 			Views:       1,
@@ -69,7 +69,7 @@ func TestVideoService(t *testing.T) {
 	})
 
 	t.Run("Update video successfully", func(t *testing.T) {
-		mockRepo.EXPECT().Update(gomock.Any()).Return(&repoDao.Video{}, nil)
+		mockRepo.EXPECT().Update(gomock.Any()).Return(&models.Video{}, nil)
 		var videoUpdate dto.VideoUpdate
 
 		video, err := service.UpdateVideo(videoUpdate)
@@ -108,7 +108,7 @@ func TestVideoService(t *testing.T) {
 	})
 
 	t.Run("Get video by name successfully", func(t *testing.T) {
-		mockRepo.EXPECT().GetByName("name").Return(&repoDao.VideoByName{}, nil)
+		mockRepo.EXPECT().GetByName("name").Return(&models.Video{}, nil)
 
 		video, err := service.GetVideoByName("name")
 		require.NoError(t, err)

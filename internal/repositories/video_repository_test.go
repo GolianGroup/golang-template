@@ -3,8 +3,7 @@ package repositories
 import (
 	"context"
 	"golang_template/internal/mocks"
-	"golang_template/internal/repositories/dao"
-	"golang_template/internal/repositories/dto"
+	"golang_template/internal/repositories/models"
 	"testing"
 
 	"github.com/arangodb/go-driver/v2/arangodb"
@@ -17,28 +16,33 @@ func TestVideoRepository(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockdb := mocks.NewMockArangoDB(ctrl)
+	mockArango := mocks.NewMockArangoDB(ctrl)
+	mockCollection := mocks.NewMockCollection(ctrl)
+	mockCollection.EXPECT().Name().Return("videos_collection").AnyTimes()
+	mockdb := mocks.NewMockDatabase(ctrl)
+
 	ctx := context.Background()
 
-	var videoCollection arangodb.Collection
-	mockdb.EXPECT().VideoCollection(ctx).Return(videoCollection, nil)
+	mockArango.EXPECT().GetCollection(ctx, "videos_collection").Return(mockCollection, nil).AnyTimes()
+	mockArango.EXPECT().Database(ctx).Return(mockdb)
 
-	repo, err := NewVideoRepository(mockdb, ctx)
+	repo, err := NewVideoRepository(mockArango, ctx)
 	require.NoError(t, err)
 
 	t.Run("Get video by key successfully", func(t *testing.T) {
 		var meta arangodb.DocumentMeta
-		mockdb.EXPECT().ReadDocumentWithOptions(ctx, videoCollection, "123", gomock.Any(), gomock.Any()).Return(meta, nil)
+		mockCollection.EXPECT().ReadDocumentWithOptions(ctx, "123", gomock.Any(), gomock.Any()).Return(meta, nil)
+
 		video, err := repo.Get("123")
 		require.NoError(t, err)
 
-		assert.IsType(t, &dao.Video{}, video)
+		assert.IsType(t, &models.Video{}, video)
 	})
 
 	t.Run("Create video successfully", func(t *testing.T) {
 		var response arangodb.CollectionDocumentCreateResponse
-		mockdb.EXPECT().CreateDocumentWithOptions(ctx, videoCollection, gomock.Any(), gomock.Any()).Return(response, nil)
-		video := dto.Video{
+		mockCollection.EXPECT().CreateDocumentWithOptions(ctx, gomock.Any(), gomock.Any()).Return(response, nil)
+		video := models.Video{
 			Name:        "name",
 			Publishable: true,
 			Categories:  []string{"cat1", "cat2"},
@@ -52,8 +56,8 @@ func TestVideoRepository(t *testing.T) {
 
 	t.Run("Update video successfully", func(t *testing.T) {
 		var response arangodb.CollectionDocumentUpdateResponse
-		mockdb.EXPECT().UpdateDocumentWithOptions(ctx, videoCollection, "123", gomock.Any(), gomock.Any()).Return(response, nil)
-		videoUpdate := dto.VideoUpdate{
+		mockCollection.EXPECT().UpdateDocumentWithOptions(ctx, "123", gomock.Any(), gomock.Any()).Return(response, nil)
+		videoUpdate := models.Video{
 			Key:         "123",
 			Categories:  []string{"cat1", "cat2"},
 			Description: "desc",
@@ -63,11 +67,12 @@ func TestVideoRepository(t *testing.T) {
 		video, err := repo.Update(videoUpdate)
 		require.NoError(t, err)
 
-		assert.IsType(t, &dao.Video{}, video)
+		assert.IsType(t, &models.Video{}, video)
 	})
 
 	t.Run("Delete video successfully", func(t *testing.T) {
-		mockdb.EXPECT().DeleteDocumentWithOptions(ctx, videoCollection, "123", gomock.Any()).Return(nil)
+		var response arangodb.CollectionDocumentDeleteResponse
+		mockCollection.EXPECT().DeleteDocumentWithOptions(ctx, "123", gomock.Any()).Return(response, nil)
 		err := repo.Delete("123")
 		require.NoError(t, err)
 
