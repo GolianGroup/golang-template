@@ -5,22 +5,21 @@ package cmd
 
 import (
 	"golang_template/internal/config"
-	"golang_template/internal/database"
 	"golang_template/internal/database/postgres"
 	"log"
 
 	"github.com/spf13/cobra"
 )
 
-// migrateCmd represents the migrate command
-var migrateCmd = &cobra.Command{
-	Use:   "migrate",
+// postgresMigrateCmd represents the pg_migrate command
+var postgresMigrateCmd = &cobra.Command{
+	Use:   "pg_migrate",
 	Short: "Migrate the migration files",
 	Long: `Migrate the migration files. Example:
-	migrate                              Migrate all the migration files
-	migrate --dir ./database/migrations  Migrate all the migration files from sepecific directory
-	migrate --version 1                  Migrate the migration file up to version 1
-	migrate --fake true                  Fake apply all the migration files`,
+	pg_migrate                              Migrate all the migration files
+	pg_migrate --dir ./database/migrations  Migrate all the migration files from sepecific directory
+	pg_migrate --version 1                  Migrate the migration file up to version 1
+	pg_migrate --fake true                  Fake apply all the migration files`,
 	Run: func(cmd *cobra.Command, args []string) {
 		versionFlag, err := cmd.Flags().GetInt64("version")
 		if err != nil {
@@ -54,8 +53,8 @@ var migrateCmd = &cobra.Command{
 		}
 		defer db.Close()
 
-		migration := database.NewMigration(db.DB())
-		err = migration.ApplyMigrations(dirFlag, versionFlag, fakeFlag)
+		migration := postgres.NewMigration(db.DB())
+		err = migration.Apply(dirFlag, versionFlag, fakeFlag)
 		if err != nil {
 			cmd.PrintErrf("Error while applying migrations:\n\t %v", err)
 			return
@@ -64,8 +63,8 @@ var migrateCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(migrateCmd)
-	migrateCmd.Flags().String("dir", "./internal/database/migrations", "Directory of the migrations")
-	migrateCmd.Flags().Int64("version", 0, "Version of the migration that is going to be applied")
-	migrateCmd.Flags().Bool("fake", false, "Fake apply migrations.")
+	RootCmd.AddCommand(postgresMigrateCmd)
+	postgresMigrateCmd.Flags().String("dir", "./internal/database/postgres/migrations", "Directory of the migrations")
+	postgresMigrateCmd.Flags().Int64("version", 0, "Version of the migration that is going to be applied")
+	postgresMigrateCmd.Flags().Bool("fake", false, "Fake apply migrations.")
 }

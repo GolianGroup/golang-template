@@ -27,6 +27,7 @@ require (
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f
 	google.golang.org/grpc v1.64.1
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
+	gotest.tools/v3 v3.5.1
 )
 
 require (

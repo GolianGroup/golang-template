@@ -16,17 +16,21 @@ type Router interface {
 }
 
 type router struct {
+	userRouter  UserRouter
+	videoRouter VideoRouter
 	redisClient producers.RedisClient
-
-	userRouter UserRouter
-	tracer     trace.Tracer
+	tracer      trace.Tracer
 }
 
 func NewRouter(controllers controllers.Controllers, redisClient producers.RedisClient, tracer oteltrace.Tracer) Router {
 	userRouter := NewUserRouter(controllers.UserController(), redisClient)
-	return &router{userRouter: userRouter,
+	videoRouter := NewVideoRouter(controllers.VideoController())
+	return &router{
+		userRouter:  userRouter,
+		videoRouter: videoRouter,
 		redisClient: redisClient,
-		tracer:      tracer}
+		tracer:      tracer,
+	}
 }
 
 func (r router) AddRoutes(router fiber.Router) {
@@ -37,5 +41,6 @@ func (r router) AddRoutes(router fiber.Router) {
 	// CORS
 	router.Use(middlewares.TracingMiddleware(r.tracer))
 	r.userRouter.AddRoutes(router)
+	r.videoRouter.AddRoutes(router)
 
 }

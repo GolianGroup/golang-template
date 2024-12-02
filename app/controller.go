@@ -9,3 +9,4 @@ import (
 func (a *application) InitController(service services.Service, logger logging.Logger) controllers.Controllers {
 	return controllers.NewControllers(service, logger)
 }
+
