@@ -1,8 +1,8 @@
 package controllers
 
 import (
+	dto "golang_template/handler/dtos"
 	"golang_template/internal/services"
-	"golang_template/internal/services/dto"
 
 	"github.com/gofiber/fiber/v2"
 )

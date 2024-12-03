@@ -2,10 +2,10 @@ package services
 
 import (
 	"errors"
+	dao "golang_template/handler/daos"
+	dto "golang_template/handler/dtos"
 	"golang_template/internal/mocks"
 	"golang_template/internal/repositories/models"
-	"golang_template/internal/services/dao"
-	"golang_template/internal/services/dto"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

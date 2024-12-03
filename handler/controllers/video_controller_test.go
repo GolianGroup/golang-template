@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	dao "golang_template/handler/daos"
+	dto "golang_template/handler/dtos"
 	"golang_template/internal/mocks"
-	"golang_template/internal/services/dao"
-	"golang_template/internal/services/dto"
 	"net/http/httptest"
 	"testing"
 
