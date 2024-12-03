@@ -7,9 +7,11 @@ import (
 	"golang_template/internal/database/postgres"
 	"golang_template/internal/logging"
 	"log"
+	"net"
 
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/fx"
+	"google.golang.org/grpc"
 )
 
 type Application interface {
@@ -40,6 +42,7 @@ func (a *application) Setup() {
 			a.InitArangoDB,
 			a.InitLogger,
 			a.InitTracerProvider,
+			a.InitGRPCServer,
 		),
 		fx.Invoke(func(lc fx.Lifecycle, db postgres.Database) {
 			// Init Tracer
@@ -58,6 +61,29 @@ func (a *application) Setup() {
 		fx.Invoke(func(app *fiber.App, router routers.Router, logger logging.Logger) {
 			logger.Info("Server Started")
 			log.Fatal(app.Listen(a.config.Server.Host + ":" + a.config.Server.Port))
+		}),
+
+		fx.Invoke(func(lc fx.Lifecycle, grpcServer *grpc.Server) {
+			lc.Append(fx.Hook{
+				OnStart: func(ctx context.Context) error {
+					listener, err := net.Listen("tcp", a.config.GRPC.Host+":"+a.config.GRPC.Port)
+					if err != nil {
+						return err
+					}
+					go func() {
+						if err := grpcServer.Serve(listener); err != nil {
+							log.Fatalf("failed to serve gRPC: %v", err)
+						}
+					}()
+					log.Println("gRPC server started on", a.config.GRPC.Host+":"+a.config.GRPC.Port)
+					return nil
+				},
+				OnStop: func(ctx context.Context) error {
+					grpcServer.Stop()
+					log.Println("gRPC server stopped")
+					return nil
+				},
+			})
 		}),
 	)
 	app.Run()

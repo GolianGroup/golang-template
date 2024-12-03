@@ -9,30 +9,46 @@ A clean and structured Go project template using Fiber framework.
 ├── app/ # Application bootstrapping
 │ ├── application.go # Main application setup
 │ ├── controller.go # Controller initialization
+│ ├── database.go # Databases setup
 │ ├── framework.go # Framework (Fiber) setup
 │ ├── repository.go # Repository initialization
 │ ├── router.go # Router setup
 │ └── service.go # Service initialization
 │
 ├── cmd/ # Command line interface
+│ ├── arango_makemigration.go # Make migration for arangodb command
+│ ├── arango_migrate.go # Migrate the json files for arangodb command
+│ ├── arango_rollback.go # Rollback migration/migrations for arangodb command
+│ ├── postgres_makemigration.go # Make migration for postgres command
+│ ├── postgres_migrate.go # Migrate the migrations for postgres command
+│ ├── postgres_rollback.go # Rollback migration/migrations for postgres command
 │ ├── root.go # Root cobra command
 │ └── serve.go # Server start command
 │
+├── docs/ # Documentation
+│
 ├── config/ # Configuration
+│ ├── config.example.yml # Configuration file example
 │ └── config.yml # Configuration file
 │
 ├── handler/ # HTTP Layer
 │ ├── controllers/ # Request handlers
+│ ├── errors/ # Handler layer errors
 │ ├── middlewares/ # HTTP middlewares
 │ └── routers/ # Route definitions
 │
 ├── internal/ # Private application code
-│ ├── domain/ # Business domain models
+│ ├── config/ # Configuration
+│ ├── database/ # Databases
+│ ├── ent/ # Ent schema files
+│ ├── mocks/ # Mock files
+│ ├── producers/ # Producers
 │ ├── repositories/ # Data access layer
 │ ├── services/ # Business logic
 │ ├── utils/ # Utility functions
-│ ├── pkg/ # Shared packages
 │ └── helper/ # Helper functions
+│
+├── pkg/ # Shared packages
 │
 └── main.go # Application entry point
 ```
@@ -49,16 +65,19 @@ A clean and structured Go project template using Fiber framework.
 This template follows clean architecture principles:
 
 1. **Domain Layer** (`internal/domain/`)
+
    - Business entities
    - Repository interfaces
    - Service interfaces
 
 2. **Application Layer** (`internal/services/`)
+
    - Business logic implementation
    - Use case orchestration
    - Domain service implementation
 
 3. **Infrastructure Layer** (`internal/repositories/`)
+
    - Database implementations
    - External service integrations
    - Repository implementations
@@ -96,3 +115,7 @@ This template follows clean architecture principles:
    ```bash
    APP_SERVER_PORT=8004 APP_SERVER_HOST=0.0.0.0 go run main.go serve
    ```
+
+## 📚 ArangoDB
+
+To see the instructions on how to work with ArangoDB in this application : [ArangoDB Documentation](./docs/arangodb.md)
