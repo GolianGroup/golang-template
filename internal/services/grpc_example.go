@@ -2,7 +2,7 @@ package services
 
 import (
 	"context"
-	"golang_template/grpc/gen/example"
+	example "golang_template/grpc/gen/example/proto"
 )
 
 // ExampleService implements the ExampleServer interface

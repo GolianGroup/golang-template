@@ -2,7 +2,7 @@ package app
 
 import (
 	example "golang_template/grpc/gen/example/proto"
-	services "golang_template/internal/services/"
+	"golang_template/internal/services"
 
 	"google.golang.org/grpc"
 )
