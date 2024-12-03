@@ -1,14 +1,15 @@
 package app
 
 import (
-	"golang_template/internal/grpc_services"
+	example "golang_template/grpc/gen/example/proto"
+	services "golang_template/internal/services/"
 
 	"google.golang.org/grpc"
 )
 
 func (a *application) InitGRPCServer() *grpc.Server {
 	grpcServer := grpc.NewServer()
-	userServiceServer := grpc_services.NewUserServiceServer(a.InitController().UserController())
-	grpc_services.RegisterUserServiceServer(grpcServer, userServiceServer)
+	exampleService := services.NewExampleService()
+	example.RegisterExampleServer(grpcServer, exampleService)
 	return grpcServer
 }
