@@ -10,8 +10,8 @@
 package mocks
 
 import (
-	dao "golang_template/internal/services/dao"
-	dto "golang_template/internal/services/dto"
+	dao "golang_template/handler/daos"
+	dto "golang_template/handler/dtos"
 	reflect "reflect"
 
 	gomock "go.uber.org/mock/gomock"

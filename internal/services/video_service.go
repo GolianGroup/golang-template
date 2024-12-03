@@ -1,10 +1,10 @@
 package services
 
 import (
+	dao "golang_template/handler/daos"
+	dto "golang_template/handler/dtos"
 	"golang_template/internal/repositories"
 	"golang_template/internal/repositories/models"
-	"golang_template/internal/services/dao"
-	"golang_template/internal/services/dto"
 )
 
 type VideoService interface {
