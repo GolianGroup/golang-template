@@ -1,23 +1,35 @@
 package app
 
 import (
+	"golang_template/internal/database/arango"
 	"golang_template/internal/database/clickhouse"
 	"golang_template/internal/database/postgres"
-	"log"
+	"golang_template/internal/logging"
+
+	"go.uber.org/zap"
 )
 
-func (a *application) InitPostgresDatabase() postgres.PostgresDatabase {
-	db, err := postgres.NewPostgresDatabase(a.ctx, &a.config.Postgres)
+func (a *application) InitDatabase(logger logging.Logger) postgres.Database {
+	db, err := postgres.NewDatabase(a.ctx, &a.config.DB)
 	if err != nil {
-		log.Fatalf("failed to setup postgres database: %s", err)
+		logger.Fatal("Failed to start database", zap.Error(err))
+
 	}
 	return db
 }
 
-func (a *application) InitClickhouseDatabase() clickhouse.ClickhouseDatabase {
+func (a *application) InitClickhouseDatabase(logger logging.Logger) clickhouse.ClickhouseDatabase {
 	db, err := clickhouse.NewClickhouseDatabase(a.ctx, &a.config.Clickhouse)
 	if err != nil {
-		log.Fatalf("failed to setup clickhouse database: %s", err)
+		logger.Fatal("failed to setup clickhouse database", zap.Error(err))
+	}
+	return db
+}
+
+func (a *application) InitArangoDB(logger logging.Logger) arango.ArangoDB {
+	db, err := arango.NewArangoDB(a.ctx, &a.config.ArangoDB)
+	if err != nil {
+		logger.Fatal("Failed to start arango database", zap.Error(err))
 	}
 	return db
 }

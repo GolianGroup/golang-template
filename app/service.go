@@ -5,6 +5,6 @@ import (
 	"golang_template/internal/services"
 )
 
-func (a *application) InitServices(repository postgres_repositories.UserRepository) services.UserService {
-	return services.NewUserService(repository)
+func (a *application) InitServices(repository repositories.Repository) services.Service {
+	return services.NewService(repository)
 }

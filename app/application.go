@@ -6,6 +6,7 @@ import (
 	"golang_template/internal/config"
 	"golang_template/internal/database/clickhouse"
 	"golang_template/internal/database/postgres"
+	"golang_template/internal/logging"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -37,12 +38,21 @@ func (a *application) Setup() {
 			a.InitPostgresRepositories,
 			a.InitPostgresDatabase,
 			a.InitClickhouseDatabase,
+			a.InitRepositories,
+			a.InitRedis,
+			a.InitDatabase,
 			a.InitArangoDB,
+			a.InitLogger,
+			a.InitTracerProvider,
 		),
-
-		fx.Invoke(func(lc fx.Lifecycle, db postgres.PostgresDatabase) {
+		fx.Invoke(func(lc fx.Lifecycle, db postgres.Database) {
+			// Init Tracer
+			shutdownTracer := a.InitTracer()
 			lc.Append(fx.Hook{
 				OnStop: func(ctx context.Context) error {
+					if err := shutdownTracer(ctx); err != nil {
+						log.Printf("Error shutting down tracer: %v", err) // this should change after logging branch get merged
+					}
 					log.Println(db.Close())
 					return nil
 				},
@@ -58,8 +68,8 @@ func (a *application) Setup() {
 			})
 		}),
 
-		// Existing fiber app invoke
-		fx.Invoke(func(app *fiber.App, router routers.Router) {
+		fx.Invoke(func(app *fiber.App, router routers.Router, logger logging.Logger) {
+			logger.Info("Server Started")
 			log.Fatal(app.Listen(a.config.Server.Host + ":" + a.config.Server.Port))
 		}),
 	)

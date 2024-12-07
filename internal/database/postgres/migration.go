@@ -12,9 +12,9 @@ import (
 )
 
 type Migration interface {
-	CreateMigrationFile(path string, migrationName string, migrationType string) error
-	ApplyMigrations(path string, version int64, fake bool) error
-	RollbackMigrations(path string, version int64) error
+	CreateFile(path string, migrationName string, migrationType string) error
+	Apply(path string, version int64, fake bool) error
+	Rollback(path string, version int64) error
 }
 
 type MigrationConfig struct {
@@ -27,7 +27,7 @@ func NewMigration(db *sql.DB) Migration {
 	}
 }
 
-func (m *MigrationConfig) CreateMigrationFile(path string, migrationName string, migrationType string) error {
+func (m *MigrationConfig) CreateFile(path string, migrationName string, migrationType string) error {
 	migrationDir, err := filepath.Abs(path)
 	if err != nil {
 		return err
@@ -41,7 +41,7 @@ func (m *MigrationConfig) CreateMigrationFile(path string, migrationName string,
 	return nil
 }
 
-func (m *MigrationConfig) ApplyMigrations(path string, version int64, fake bool) error {
+func (m *MigrationConfig) Apply(path string, version int64, fake bool) error {
 	if m.db == nil {
 		return errors.New("connection to database is not established")
 	}
@@ -62,7 +62,7 @@ func (m *MigrationConfig) ApplyMigrations(path string, version int64, fake bool)
 	return goose.UpTo(db, migrationDir, version)
 }
 
-func (m *MigrationConfig) RollbackMigrations(path string, version int64) error {
+func (m *MigrationConfig) Rollback(path string, version int64) error {
 	if m.db == nil {
 		return errors.New("connection to database is not established")
 	}
@@ -117,19 +117,19 @@ func fakeApply(db *sql.DB, path string, version int64) error {
 		return err
 	}
 
-	var toApplyMigrations []int64
+	var toApply []int64
 	for _, migration := range foundMigrations {
 		if !slices.Contains(allAppliedMigrations, migration.Version) {
-			toApplyMigrations = append(toApplyMigrations, migration.Version)
+			toApply = append(toApply, migration.Version)
 		}
 	}
 
-	if len(toApplyMigrations) == 0 {
+	if len(toApply) == 0 {
 		log.Println("No unapplied migration found.")
 		return nil
 	}
 
-	for _, migrationVer := range toApplyMigrations {
+	for _, migrationVer := range toApply {
 		_, err := db.Exec(`
 		INSERT INTO public.goose_db_version (version_id, is_applied) 
 		VALUES ($1, true)

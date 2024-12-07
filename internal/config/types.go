@@ -3,12 +3,13 @@ package config
 // Config holds all configuration for the application
 type Config struct {
 	Server     ServerConfig     `mapstructure:"server" validate:"required"`
-	Postgres   PostgresConfig   `mapstructure:"db" validate:"required"`
+	DB         DatabaseConfig   `mapstructure:"db" validate:"required"`
 	Redis      RedisConfig      `mapstructure:"redis" validate:"required"`
 	JWT        JWTConfig        `mapstructure:"jwt" validate:"required"`
-	LogLevel   string           `mapstructure:"log_level" validate:"required,oneof=debug info warn error"`
-	Clickhouse ClickhouseConfig `mapstructure:"clickhouse" validate:"required"`
+	Logger     LoggerConfig     `mapstructure:"logger" validate:"required"`
 	ArangoDB   ArangoConfig     `mapstructure:"arango" validate:"required"`
+	Tracer     TracerConfig     `mapstructure:"tracer" validate:"required"`
+	Clickhouse ClickhouseConfig `mapstructure:"clickhouse" validate:"required"`
 }
 
 // ServerConfig holds all server related configuration
@@ -35,12 +36,16 @@ type PostgresConfig struct {
 // RedisConfig holds all redis related configuration
 type RedisConfig struct {
 	Host         string `mapstructure:"host" validate:"required,hostname|ip"`
-	Port         string `mapstructure:"port" validate:"required,number"`
+	Port         int    `mapstructure:"port" validate:"required,number"`
 	Password     string `mapstructure:"password"`
-	DB           int    `mapstructure:"db" validate:"min=0"`
+	DB           int    `mapstructure:"db"`
 	MaxRetries   int    `mapstructure:"max_retries" validate:"required,min=1"`
 	PoolSize     int    `mapstructure:"pool_size" validate:"required,min=1"`
 	MinIdleConns int    `mapstructure:"min_idle_conns" validate:"required,min=1"`
+	DialTimeout  int    `mapstructure:"dial_time_out" validate:"required,min=1"`
+	ReadTimeout  int    `mapstructure:"read_time_out" validate:"required,min=1"`
+	WriteTimeout int    `mapstructure:"write_time_out" validate:"required,min=1"`
+	IdleTimeout  int    `mapstructure:"idle_time_out" validate:"required,min=1"`
 }
 
 // JWTConfig holds all JWT related configuration
@@ -62,10 +67,35 @@ type ClickhouseConfig struct {
 	Debug        bool   `mapstructure:"debug"`
 }
 
+type LoggerConfig struct {
+	Level         string              `mapstructure:"level" validate:"required,oneof=debug info warn error panic"`
+	EncoderConfig LoggerEncoderConfig `mapstructure:"encoder_config"`
+	Rotation      RotationConfig      `mapstructure:"rotation_config"`
+}
+
+type LoggerEncoderConfig struct {
+	MessageKey string `mapstructure:"message_key" validate:"required"`
+	LevelKey   string `mapstructure:"level_key" validate:"required"`
+	NameKey    string `mapstructure:"name_key" validate:"required"`
+}
+
+type RotationConfig struct {
+	Filename   string `mapstruct:"filename" validate:"required"`
+	MaxSize    int    `mapstruct:"mazsize"` // megabytes
+	MaxBackups int    `mapstruct:"max_backups"`
+	MaxAge     int    `mapstruct:"max_ages"` // days
+}
 type ArangoConfig struct {
 	ConnStrs           string `mapstructure:"conn_strs" validate:"required"`
 	InsecureSkipVerify bool   `mapstructure:"insecure_skip_verify" validate:"required"`
 	DBName             string `mapstructure:"db_name" validate:"required"`
 	User               string `mapstructure:"user" validate:"required"`
 	Pass               string `mapstructure:"password" validate:"required"`
+}
+
+// Signoz Otel tracer configuration
+type TracerConfig struct {
+	ServiceName  string `mapstructure:"service_name" validate:"required"`
+	CollectorUrl string `mapstructure:"collector_url" validate:"required"`
+	Insecure     string `mapstructure:"insecure" validate:"required"`
 }

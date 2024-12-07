@@ -11,17 +11,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// makemigrationCmd represents the makemigration command
-var makemigrationCmd = &cobra.Command{
-	Use:   "makemigration [name]",
+// postgresMakemigrationCmd represents the pg_makemigration command
+var postgresMakemigrationCmd = &cobra.Command{
+	Use:   "pg_makemigration [name]",
 	Short: "Create a new migration file",
 	Long: `Create a new migration file. Example:
-		makemigration add_users_table // Create a new migration file with sql type
-		makemigration add_users_table --type go // Create a new migration file with go type
-		makemigration add_users_table --dir ./database/migrations // Create a new migration file in specific directory`,
+		pg_makemigration add_users_table // Create a new migration file with sql type
+		pg_makemigration add_users_table --type go // Create a new migration file with go type
+		pg_makemigration add_users_table --dir ./database/migrations // Create a new migration file in specific directory`,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Println("makemigration")
+		cmd.Println("pg_makemigration")
 		name := args[0]
 		if name == "" {
 			cmd.PrintErrf("Migration name is required")
@@ -51,15 +51,15 @@ var makemigrationCmd = &cobra.Command{
 			return
 		}
 
-		db, err := postgres.NewPostgresDatabase(cmd.Context(), &dbConfig.Postgres)
+		db, err := postgres.NewDatabase(cmd.Context(), &dbConfig.DB)
 		if err != nil {
-			cmd.PrintErrf("Error while initializing postgres database:\n\t %v", err)
+			cmd.PrintErrf("Error while initializing database:\n\t %v", err)
 			return
 		}
 		defer db.Close()
 
 		migration := postgres.NewMigration(db.DB())
-		err = migration.CreateMigrationFile(dirFlag, name, typeFlag)
+		err = migration.CreateFile(dirFlag, name, typeFlag)
 		if err != nil {
 			cmd.PrintErrf("Error while creating migration file:\n\t %v", err)
 			return
@@ -68,8 +68,8 @@ var makemigrationCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(makemigrationCmd)
+	RootCmd.AddCommand(postgresMakemigrationCmd)
 
-	makemigrationCmd.Flags().String("dir", "./internal/database/migrations", "Directory of the migrations")
-	makemigrationCmd.Flags().String("type", "sql", "Type of the migration file which is sql or go")
+	postgresMakemigrationCmd.Flags().String("dir", "./internal/database/postgres/migrations", "Directory of the migrations")
+	postgresMakemigrationCmd.Flags().String("type", "sql", "Type of the migration file which is sql or go")
 }
