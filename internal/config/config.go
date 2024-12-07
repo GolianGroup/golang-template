@@ -65,7 +65,7 @@ func LoadConfig(path string) (*Config, error) {
 // }
 
 // GetDSN returns database connection string
-func GetPostgresDSN(cfg *PostgresConfig) string {
+func GetPostgresDSN(cfg *DatabaseConfig) string {
 	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		cfg.Host,
 		cfg.Port,

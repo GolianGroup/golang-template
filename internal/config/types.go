@@ -9,6 +9,7 @@ type Config struct {
 	Logger     LoggerConfig     `mapstructure:"logger" validate:"required"`
 	ArangoDB   ArangoConfig     `mapstructure:"arango" validate:"required"`
 	Tracer     TracerConfig     `mapstructure:"tracer" validate:"required"`
+	LogLevel   string           `mapstructure:"log_level" validate:"required,oneof=debug info warn error"`
 	Clickhouse ClickhouseConfig `mapstructure:"clickhouse" validate:"required"`
 }
 
@@ -22,7 +23,7 @@ type ServerConfig struct {
 }
 
 // DatabaseConfig holds all database related configuration
-type PostgresConfig struct {
+type DatabaseConfig struct {
 	Host     string `mapstructure:"host" validate:"required,hostname|ip"`
 	Port     string `mapstructure:"port" validate:"required,number"`
 	User     string `mapstructure:"user" validate:"required"`

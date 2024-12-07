@@ -1,7 +1,7 @@
 package app
 
 import (
-	postgres_repositories "golang_template/internal/repositories/postgres"
+	"golang_template/internal/repositories"
 	"golang_template/internal/services"
 )
 
