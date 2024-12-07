@@ -35,8 +35,6 @@ func (a *application) Setup() {
 			a.InitFramework,
 			a.InitController,
 			a.InitServices,
-			a.InitRepositories,
-			a.InitDatabase,
 			a.InitClickhouseDatabase,
 			a.InitRepositories,
 			a.InitRedis,
