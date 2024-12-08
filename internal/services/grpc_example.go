@@ -2,22 +2,22 @@ package services
 
 import (
 	"context"
-	example "golang_template/grpc/gen/example/proto"
+	"golang_template/internal/services/dto"
 )
 
-// ExampleService implements the ExampleServer interface
-type ExampleService struct {
-	example.UnimplementedExampleServer
+type ExampleService interface {
+	SayHello(ctx context.Context, req *dto.HelloRequestDTO) (*dto.HelloReplyDTO, error)
 }
 
-// NewExampleService creates a new instance of ExampleService
-func NewExampleService() *ExampleService {
-	return &ExampleService{}
+type exampleService struct{}
+
+func NewExampleService() ExampleService {
+	return &exampleService{}
 }
 
-// SayHello implements the SayHello method of the ExampleServer interface
-func (s *ExampleService) SayHello(ctx context.Context, req *example.HelloRequest) (*example.HelloReply, error) {
-	// Implement your logic here
-	message := "Hello, " + req.GetName() // Assuming HelloRequest has a field 'Name'
-	return &example.HelloReply{Message: message}, nil
+func (s *exampleService) SayHello(ctx context.Context, req *dto.HelloRequestDTO) (*dto.HelloReplyDTO, error) {
+	message := "Hello, " + req.Name
+	return &dto.HelloReplyDTO{
+		Message: message,
+	}, nil
 }
