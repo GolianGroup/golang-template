@@ -29,6 +29,7 @@ COPY --from=builder /build/server /app/bin/server
 
 # Expose the application port.
 EXPOSE 8080
+EXPOSE 50051
 
 # Command to run the application.
 CMD ["./bin/server", "serve"]

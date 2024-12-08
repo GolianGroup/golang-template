@@ -8,7 +8,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"go.opentelemetry.io/otel/trace"
-	oteltrace "go.opentelemetry.io/otel/trace"
 )
 
 type Router interface {
@@ -22,7 +21,7 @@ type router struct {
 	tracer      trace.Tracer
 }
 
-func NewRouter(controllers controllers.Controllers, redisClient producers.RedisClient, tracer oteltrace.Tracer) Router {
+func NewRouter(controllers controllers.Controllers, redisClient producers.RedisClient, tracer trace.Tracer) Router {
 	userRouter := NewUserRouter(controllers.UserController(), redisClient)
 	videoRouter := NewVideoRouter(controllers.VideoController())
 	return &router{

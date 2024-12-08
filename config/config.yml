@@ -44,7 +44,7 @@ arango:
 
 # You will only need this in production.
 logger:
-  level: "info" 
+  level: "info"
   encoder_config:
     message_key: "msg"
     level_key: "level"
@@ -59,3 +59,7 @@ tracer:
   service_name: "test"
   insecure: "true"
   collector_url: "localhost:4317"
+
+grpc:
+  grpc_host: "localhost"
+  grpc_port: "50051"

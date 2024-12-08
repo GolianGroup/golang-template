@@ -9,6 +9,7 @@ type Config struct {
 	Logger   LoggerConfig   `mapstructure:"logger" validate:"required"`
 	ArangoDB ArangoConfig   `mapstructure:"arango" validate:"required"`
 	Tracer   TracerConfig   `mapstructure:"tracer" validate:"required"`
+	GRPC     GRPCConfig     `mapstructure:"grpc" validate:"required"`
 }
 
 // ServerConfig holds all server related configuration
@@ -85,4 +86,8 @@ type TracerConfig struct {
 	ServiceName  string `mapstructure:"service_name" validate:"required"`
 	CollectorUrl string `mapstructure:"collector_url" validate:"required"`
 	Insecure     string `mapstructure:"insecure" validate:"required"`
+}
+type GRPCConfig struct {
+	Host string `mapstructure:"grpc_host" validate:"required,hostname|ip"` // gRPC server host
+	Port string `mapstructure:"grpc_port" validate:"required,number"`      // gRPC server port
 }
