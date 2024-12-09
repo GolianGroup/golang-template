@@ -33,14 +33,14 @@ log_level: "info"
 
 arango:
   db_name: "arangodb"
-  conn_strs: "tcp://127.0.0.1:8529,http://198.51.100.1:8529"
+  conn_strs: "http://127.0.0.1:8529"
   insecure_skip_verify: true
   user: "root"
-  password: "root"
+  password: "rootpassword"
 
 # You will only need this in production.
 logger:
-  level: "info" 
+  level: "info"
   encoder_config:
     message_key: "msg"
     level_key: "level"
