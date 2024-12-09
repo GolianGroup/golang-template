@@ -16,7 +16,7 @@ import (
 )
 
 func setupTestContainer(t *testing.T) (*config.ClickhouseConfig, func()) {
-	ctx := context.Background()
+	ctx := context.TODO()
 
 	req := testcontainers.ContainerRequest{
 		Image:        "clickhouse/clickhouse-server:latest",
