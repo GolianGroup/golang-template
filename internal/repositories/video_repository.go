@@ -19,32 +19,30 @@ type VideoRepository interface {
 }
 
 type videoRepository struct {
-	database        arangodb.Database
-	videoCollection arangodb.Collection
-	ctx             context.Context
+	db  arangodb.Database
+	ctx context.Context
 }
 
 func NewVideoRepository(db arango.ArangoDB, ctx context.Context) (VideoRepository, error) {
-	videoCollection, err := db.GetCollection(ctx, "videos_collection")
+	database := db.Database(ctx)
+
+	return &videoRepository{
+		db:  database,
+		ctx: ctx,
+	}, nil
+}
+
+func (c videoRepository) Get(key string) (*models.Video, error) {
+	collection, err := c.db.GetCollection(c.ctx, "videos_collection", nil)
 	if err != nil {
 		log.Println("Failed to get videos collection")
 		return nil, err
 	}
 
-	database := db.Database(ctx)
-
-	return &videoRepository{
-		database:        database,
-		videoCollection: videoCollection,
-		ctx:             ctx,
-	}, nil
-}
-
-func (c videoRepository) Get(key string) (*models.Video, error) {
 	var video models.Video
 
 	opts := arangodb.CollectionDocumentReadOptions{}
-	_, err := c.videoCollection.ReadDocumentWithOptions(c.ctx, key, &video, &opts)
+	_, err = collection.ReadDocumentWithOptions(c.ctx, key, &video, &opts)
 	if err != nil {
 		return nil, err
 	}
@@ -53,8 +51,14 @@ func (c videoRepository) Get(key string) (*models.Video, error) {
 }
 
 func (c videoRepository) Create(video models.Video) error {
+	collection, err := c.db.GetCollection(c.ctx, "videos_collection", nil)
+	if err != nil {
+		log.Println("Failed to get videos collection")
+		return err
+	}
+
 	opts := arangodb.CollectionDocumentCreateOptions{}
-	_, err := c.videoCollection.CreateDocumentWithOptions(c.ctx, video, &opts)
+	_, err = collection.CreateDocumentWithOptions(c.ctx, video, &opts)
 	if err != nil {
 		return err
 	}
@@ -62,6 +66,12 @@ func (c videoRepository) Create(video models.Video) error {
 }
 
 func (c videoRepository) Update(videoUpdate models.Video) (*models.Video, error) {
+	collection, err := c.db.GetCollection(c.ctx, "videos_collection", nil)
+	if err != nil {
+		log.Println("Failed to get videos collection")
+		return nil, err
+	}
+
 	var video models.Video
 	withWaitForSync := true
 	keepNull := true
@@ -70,7 +80,7 @@ func (c videoRepository) Update(videoUpdate models.Video) (*models.Video, error)
 		NewObject:       &video,
 		KeepNull:        &keepNull,
 	}
-	_, err := c.videoCollection.UpdateDocumentWithOptions(c.ctx, videoUpdate.Key, videoUpdate, &options)
+	_, err = collection.UpdateDocumentWithOptions(c.ctx, videoUpdate.Key, videoUpdate, &options)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +89,13 @@ func (c videoRepository) Update(videoUpdate models.Video) (*models.Video, error)
 }
 
 func (c videoRepository) Delete(key string) error {
-	_, err := c.videoCollection.DeleteDocumentWithOptions(c.ctx, key, nil)
+	collection, err := c.db.GetCollection(c.ctx, "videos_collection", nil)
+	if err != nil {
+		log.Println("Failed to get videos collection")
+		return err
+	}
+
+	_, err = collection.DeleteDocumentWithOptions(c.ctx, key, nil)
 	if err != nil {
 		return err
 	}
@@ -87,6 +103,12 @@ func (c videoRepository) Delete(key string) error {
 }
 
 func (c videoRepository) GetByName(name string) (*models.Video, error) {
+	collection, err := c.db.GetCollection(c.ctx, "videos_collection", nil)
+	if err != nil {
+		log.Println("Failed to get videos collection")
+		return nil, err
+	}
+
 	var video models.Video
 	query := `
 	FOR v IN @@collection
@@ -96,11 +118,11 @@ func (c videoRepository) GetByName(name string) (*models.Video, error) {
 	`
 	opts := arangodb.QueryOptions{
 		BindVars: map[string]interface{}{
-			"@collection": c.videoCollection.Name(),
+			"@collection": collection.Name(),
 			"name":        name,
 		},
 	}
-	cursor, err := c.database.Query(c.ctx, query, &opts)
+	cursor, err := c.db.Query(c.ctx, query, &opts)
 	if err != nil {
 		return nil, err
 	}

@@ -78,7 +78,7 @@ func GetDSN(cfg *DatabaseConfig) string {
 
 // GetRedisAddr returns redis connection address
 func GetRedisAddr(cfg *RedisConfig) string {
-	return fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
+	return fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 }
 
 // NewProductionEncoderConfig returns an opinionated EncoderConfig for

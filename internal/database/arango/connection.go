@@ -2,8 +2,8 @@ package arango
 
 import (
 	"context"
-	"fmt"
 	"golang_template/internal/config"
+	"log"
 	"time"
 
 	"github.com/arangodb/go-driver/v2/arangodb"
@@ -44,13 +44,19 @@ func NewArangoDB(ctx context.Context, conf *config.ArangoConfig) (ArangoDB, erro
 	if err != nil {
 		return nil, err
 	}
-	if !dbExists {
-		return nil, fmt.Errorf("database %s does not exist", conf.DBName)
-	}
 
-	db, err := client.Database(timeoutCtx, conf.DBName)
-	if err != nil {
-		return nil, err
+	var db arangodb.Database
+	if !dbExists {
+		log.Println("Database does not exist, creating...")
+		db, err = client.CreateDatabase(timeoutCtx, conf.DBName, nil)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		db, err = client.Database(timeoutCtx, conf.DBName)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &arangoDB{

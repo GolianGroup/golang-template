@@ -6,17 +6,17 @@ server:
   write_timeout: 10 # seconds
 
 db:
-  host: "localhost"
+  host: "template-postgres"
   port: "5432"
   user: "postgres"
-  password: "1234"
+  password: "postgres"
   dbname: "myapp"
   sslmode: "disable"
   max_conns: 20
   min_conns: 1
 
 redis:
-  host: "localhost"
+  host: "template-redis"
   port: "6379"
   password: ""
   db: 0
@@ -37,14 +37,14 @@ log_level: "info"
 
 arango:
   db_name: "arangodb"
-  conn_strs: "tcp://127.0.0.1:8529,http://198.51.100.1:8529"
+  conn_strs: "http://template-arango:8529"
   insecure_skip_verify: true
   user: "root"
-  password: "root"
+  password: "rootpassword"
 
 # You will only need this in production.
 logger:
-  level: "info" 
+  level: "info"
   encoder_config:
     message_key: "msg"
     level_key: "level"
