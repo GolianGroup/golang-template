@@ -4,6 +4,7 @@ import (
 	"context"
 	"golang_template/handler/routers"
 	"golang_template/internal/config"
+	"golang_template/internal/database/clickhouse"
 	"golang_template/internal/database/postgres"
 	"golang_template/internal/logging"
 	"log"
@@ -34,6 +35,7 @@ func (a *application) Setup() {
 			a.InitFramework,
 			a.InitController,
 			a.InitServices,
+			a.InitClickhouseDatabase,
 			a.InitRepositories,
 			a.InitRedis,
 			a.InitDatabase,
@@ -50,6 +52,15 @@ func (a *application) Setup() {
 						log.Printf("Error shutting down tracer: %v", err) // this should change after logging branch get merged
 					}
 					log.Println(db.Close())
+					return nil
+				},
+			})
+		}),
+
+		fx.Invoke(func(lc fx.Lifecycle, clickhouse clickhouse.ClickhouseDatabase) {
+			lc.Append(fx.Hook{
+				OnStop: func(ctx context.Context) error {
+					log.Println(clickhouse.Close())
 					return nil
 				},
 			})
