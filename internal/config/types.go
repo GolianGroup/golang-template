@@ -59,6 +59,7 @@ type LoggerConfig struct {
 	Level         string              `mapstructure:"level" validate:"required,oneof=debug info warn error panic"`
 	EncoderConfig LoggerEncoderConfig `mapstructure:"encoder_config"`
 	Rotation      RotationConfig      `mapstructure:"rotation_config"`
+	Fluentbit     FluentbitConfig     `mapstructure:"fluentbit_config" validate:"required"`
 }
 
 type LoggerEncoderConfig struct {
@@ -72,6 +73,11 @@ type RotationConfig struct {
 	MaxSize    int    `mapstruct:"mazsize"` // megabytes
 	MaxBackups int    `mapstruct:"max_backups"`
 	MaxAge     int    `mapstruct:"max_ages"` // days
+}
+type FluentbitConfig struct {
+	Host string `mapstructure:"host" validate:"required"`
+	Port int    `mapstructure:"port" validate:"required"`
+	Tag  string `mapstructure:"tag" validate:"required"`
 }
 type ArangoConfig struct {
 	ConnStrs           string `mapstructure:"conn_strs" validate:"required"`
