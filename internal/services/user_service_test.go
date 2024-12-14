@@ -1,10 +1,10 @@
 package services
 
 import (
+	dto "golang_template/handler/dtos"
 	"golang_template/internal/ent"
 	"golang_template/internal/mocks"
 	"golang_template/internal/repositories"
-	"golang_template/internal/services/dto"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"

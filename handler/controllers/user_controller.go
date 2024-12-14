@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"errors"
+	dto "golang_template/handler/dtos"
 	err "golang_template/handler/errors"
 	"golang_template/internal/services"
-	"golang_template/internal/services/dto"
 
 	"golang_template/internal/logging"
 
@@ -37,14 +37,13 @@ var (
 	}
 )
 
-
 type UserController interface {
 	Login(ctx *fiber.Ctx) error
 }
 
 type userController struct {
 	service services.UserService
-	logger logging.Logger
+	logger  logging.Logger
 }
 
 // inject user service to user controller

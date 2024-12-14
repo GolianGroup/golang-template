@@ -2,9 +2,9 @@ package services
 
 import (
 	"errors"
+	dto "golang_template/handler/dtos"
 	"golang_template/internal/ent"
 	"golang_template/internal/repositories"
-	"golang_template/internal/services/dto"
 
 	"github.com/gofiber/fiber/v2"
 )
