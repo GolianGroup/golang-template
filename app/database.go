@@ -2,6 +2,7 @@ package app
 
 import (
 	"golang_template/internal/database/arango"
+	"golang_template/internal/database/clickhouse"
 	"golang_template/internal/database/postgres"
 	"golang_template/internal/logging"
 
@@ -13,6 +14,14 @@ func (a *application) InitDatabase(logger logging.Logger) postgres.Database {
 	if err != nil {
 		logger.Fatal("Failed to start database", zap.Error(err))
 
+	}
+	return db
+}
+
+func (a *application) InitClickhouseDatabase(logger logging.Logger) clickhouse.ClickhouseDatabase {
+	db, err := clickhouse.NewClickhouseDatabase(a.ctx, &a.config.Clickhouse)
+	if err != nil {
+		logger.Fatal("failed to setup clickhouse database", zap.Error(err))
 	}
 	return db
 }
