@@ -11,6 +11,7 @@ type Config struct {
 	Tracer     TracerConfig     `mapstructure:"tracer" validate:"required"`
 	LogLevel   string           `mapstructure:"log_level" validate:"required,oneof=debug info warn error"`
 	Clickhouse ClickhouseConfig `mapstructure:"clickhouse" validate:"required"`
+	GRPC     GRPCConfig     	`mapstructure:"grpc" validate:"required"`
 }
 
 // ServerConfig holds all server related configuration
@@ -72,6 +73,7 @@ type LoggerConfig struct {
 	Level         string              `mapstructure:"level" validate:"required,oneof=debug info warn error panic"`
 	EncoderConfig LoggerEncoderConfig `mapstructure:"encoder_config"`
 	Rotation      RotationConfig      `mapstructure:"rotation_config"`
+	Fluentbit     FluentbitConfig     `mapstructure:"fluentbit_config" validate:"required"`
 }
 
 type LoggerEncoderConfig struct {
@@ -86,6 +88,11 @@ type RotationConfig struct {
 	MaxBackups int    `mapstruct:"max_backups"`
 	MaxAge     int    `mapstruct:"max_ages"` // days
 }
+type FluentbitConfig struct {
+	Host string `mapstructure:"host" validate:"required"`
+	Port int    `mapstructure:"port" validate:"required"`
+	Tag  string `mapstructure:"tag" validate:"required"`
+}
 type ArangoConfig struct {
 	ConnStrs           string `mapstructure:"conn_strs" validate:"required"`
 	InsecureSkipVerify bool   `mapstructure:"insecure_skip_verify" validate:"required"`
@@ -99,4 +106,8 @@ type TracerConfig struct {
 	ServiceName  string `mapstructure:"service_name" validate:"required"`
 	CollectorUrl string `mapstructure:"collector_url" validate:"required"`
 	Insecure     string `mapstructure:"insecure" validate:"required"`
+}
+type GRPCConfig struct {
+	Host string `mapstructure:"grpc_host" validate:"required,hostname|ip"` // gRPC server host
+	Port string `mapstructure:"grpc_port" validate:"required,number"`      // gRPC server port
 }

@@ -1,8 +1,8 @@
 server:
   port: "8080"
   host: "0.0.0.0"
-  mode: "development"
-  read_timeout: 10 # seconds
+  mode: "production"
+  read_timeout: 10  # seconds
   write_timeout: 10 # seconds
 
 db:
@@ -33,8 +33,6 @@ jwt:
   expire_hour: 24
   refresh_expire_day: 7
 
-log_level: "info"
-
 arango:
   db_name: "arangodb"
   conn_strs: "tcp://127.0.0.1:8529,http://198.51.100.1:8529"
@@ -44,18 +42,22 @@ arango:
 
 # You will only need this in production.
 logger:
-  level: "info" 
+  level: "info"
   encoder_config:
     message_key: "msg"
     level_key: "level"
     name_key: "logger"
   rotation_config:
-    filename: "var/lib/test.txt"
-    max_size: 500
-    max_backups: 2
+    filename: "var/lib/test.log"
+    max_size: 1
+    max_backups: 1
     max_age: 1
 
 tracer:
   service_name: "test"
   insecure: "true"
   collector_url: "localhost:4317"
+
+grpc:
+  grpc_host: "localhost"
+  grpc_port: "50051"
