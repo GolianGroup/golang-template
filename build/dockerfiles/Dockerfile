@@ -6,8 +6,11 @@ WORKDIR /build
 # Copy dependency files first to leverage Docker caching.
 COPY go.mod go.sum ./
 
-# Download dependencies early to cache them if unchanged.
+# Download and cache dependencies early to take advantage of Docker's caching layers.
 RUN go mod download
+
+# Now tidy the module to clean up any unwanted dependencies.
+RUN go mod tidy
 
 # Copy the rest of the application code.
 COPY . .
