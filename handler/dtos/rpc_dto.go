@@ -1,8 +1,6 @@
 package dto
 
-import (
-	example "golang_template/grpc/gen/example/proto"
-)
+import rpc_service "golang_template/proto"
 
 // HelloRequestDTO represents the domain model for hello request
 type HelloRequestDTO struct {
@@ -15,15 +13,15 @@ type HelloReplyDTO struct {
 }
 
 // ToHelloRequestDTO converts gRPC HelloRequest to domain DTO
-func ToHelloRequestDTO(req *example.HelloRequest) *HelloRequestDTO {
+func ToHelloRequestDTO(req *rpc_service.HelloRequest) *HelloRequestDTO {
 	return &HelloRequestDTO{
 		Name: req.Name,
 	}
 }
 
 // ToHelloReply converts domain DTO to gRPC HelloReply
-func (dto *HelloReplyDTO) ToHelloReply() *example.HelloReply {
-	return &example.HelloReply{
+func (dto *HelloReplyDTO) ToHelloReply() *rpc_service.HelloReply {
+	return &rpc_service.HelloReply{
 		Message: dto.Message,
 	}
 }

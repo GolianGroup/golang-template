@@ -11,7 +11,8 @@ type Config struct {
 	Tracer     TracerConfig     `mapstructure:"tracer" validate:"required"`
 	LogLevel   string           `mapstructure:"log_level" validate:"required,oneof=debug info warn error"`
 	Clickhouse ClickhouseConfig `mapstructure:"clickhouse" validate:"required"`
-	GRPC     GRPCConfig     	`mapstructure:"grpc" validate:"required"`
+	GRPC       GRPCConfig      `mapstructure:"grpc" validate:"required"`
+	Environment string          `mapstructure:"environment" validate:"required,oneof=development production testing"`
 }
 
 // ServerConfig holds all server related configuration

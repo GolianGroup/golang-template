@@ -59,3 +59,5 @@ tracer:
   service_name: "test"
   insecure: "true"
   collector_url: "localhost:4317"
+
+environment: "development"

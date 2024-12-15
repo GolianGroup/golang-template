@@ -16,6 +16,9 @@ func LoadConfig(path string) (*Config, error) {
 
 	viper.SetConfigFile(path)
 
+	// Set default values
+	viper.SetDefault("environment", "development")
+
 	viper.AutomaticEnv()
 	// viper.SetEnvPrefix("APP")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))

@@ -31,3 +31,15 @@ dev-logs:
 .PHONY: dev-ps
 dev-ps:
 	docker-compose -f $(DEV_COMPOSE_FILE) ps 
+
+.PHONY: gen-proto
+gen-proto:
+	protoc \
+	--proto_path=./proto \
+	--go_out=./proto \
+	--go_opt=paths=source_relative \
+	--go-grpc_opt=paths=source_relative \
+	--go-grpc_opt=require_unimplemented_servers=false \
+	--experimental_allow_proto3_optional \
+	--go-grpc_out=./proto \
+	./proto/*.proto

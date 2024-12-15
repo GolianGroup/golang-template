@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package example;
+package rpc_service;
 
-option go_package = "example/proto;example";
+option go_package = ".;rpc_service";
 
 // The greeting service definition.
-service Example {
+service RpcService {
   // Sends a greeting
   rpc SayHello (HelloRequest) returns (HelloReply) {}
 }
