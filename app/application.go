@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"golang_template/handler/routers"
 	"golang_template/internal/config"
 	"golang_template/internal/database/clickhouse"
 	"golang_template/internal/database/postgres"
@@ -121,6 +122,10 @@ func (a *application) Setup() {
 					return nil
 				},
 			})
+		}),
+
+		fx.Invoke(func(app *fiber.App, router routers.Router) {
+			router.AddRoutes(app.Group(""))
 		}),
 	)
 	app.Run()

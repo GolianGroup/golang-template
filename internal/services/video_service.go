@@ -5,6 +5,8 @@ import (
 	dto "golang_template/handler/dtos"
 	"golang_template/internal/repositories"
 	"golang_template/internal/repositories/models"
+
+	"github.com/google/uuid"
 )
 
 type VideoService interface {
@@ -45,12 +47,14 @@ func (s videoService) GetVideo(key string) (*dao.Video, error) {
 }
 
 func (s videoService) CreateVideo(video dto.Video) error {
+	key := uuid.New().String()
 	createVideo := models.Video{
 		Publishable: video.Publishable,
 		Categories:  video.Categories,
 		Description: video.Description,
 		Name:        video.Name,
 		Type:        video.Type,
+		Key:         key,
 	}
 
 	err := s.videoRepository.Create(createVideo)
