@@ -2,6 +2,7 @@ package controllers
 
 import (
 	dto "golang_template/handler/dtos"
+	"golang_template/handler/presenters"
 	"golang_template/internal/services"
 
 	"github.com/gofiber/fiber/v2"
@@ -32,7 +33,8 @@ func (c videoController) GetVideo(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err})
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(video)
+	presenter := presenters.NewVideoPresenter(video)
+	return ctx.Status(fiber.StatusOK).JSON(presenter.Present())
 }
 
 func (c videoController) CreateVideo(ctx *fiber.Ctx) error {

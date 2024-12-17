@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	dao "golang_template/handler/daos"
 	dto "golang_template/handler/dtos"
 	"golang_template/internal/mocks"
+	"golang_template/internal/repositories/models"
 	"net/http/httptest"
 	"testing"
 
@@ -29,7 +29,7 @@ func TestVideoController(t *testing.T) {
 	t.Run("Get video by key successfully", func(t *testing.T) {
 		app.Get("/video/:key", controller.GetVideo)
 
-		var video dao.Video
+		var video models.Video
 		mockService.EXPECT().GetVideo("123").Return(&video, nil)
 
 		req := httptest.NewRequest("GET", "/video/123", nil)
@@ -123,7 +123,7 @@ func TestVideoController(t *testing.T) {
 		body, err := json.Marshal(request)
 		require.NoError(t, err)
 
-		var video dao.Video
+		var video models.Video
 		mockService.EXPECT().UpdateVideo(request).Return(&video, nil).Times(1)
 
 		req := httptest.NewRequest("PATCH", "/video/123", bytes.NewBuffer(body))
@@ -196,7 +196,7 @@ func TestVideoController(t *testing.T) {
 	t.Run("Get video by name successfully", func(t *testing.T) {
 		app.Get("/video", controller.GetVideoByName)
 
-		var video dao.VideoByName
+		var video models.Video
 		mockService.EXPECT().GetVideoByName("name").Return(&video, nil).Times(1)
 
 		req := httptest.NewRequest("GET", "/video?name=name", nil)

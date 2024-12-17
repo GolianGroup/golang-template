@@ -13,6 +13,7 @@ import (
 type ArangoDB interface {
 	Database(ctx context.Context) arangodb.Database
 	GetCollection(ctx context.Context, name string) (arangodb.Collection, error)
+	Ping(ctx context.Context) (error)
 }
 
 type arangoDB struct {
@@ -58,6 +59,14 @@ func NewArangoDB(ctx context.Context, conf *config.ArangoConfig) (ArangoDB, erro
 		client:   client,
 		config:   conf,
 	}, nil
+}
+
+func (a *arangoDB) Ping(ctx context.Context) (error) {
+	_, err := a.database.Info(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (a *arangoDB) Database(ctx context.Context) arangodb.Database {

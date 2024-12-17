@@ -10,6 +10,21 @@ DEV_ARANGO_PASSWORD := $(shell yq e '.arango.password' $(DEV_CONFIG_FILE))
 DEV_REDIS_PASSWORD := $(shell yq e '.redis.password' $(DEV_CONFIG_FILE))
 
 
+# Common environment variables
+define set_dev_env_vars
+	DB_PASSWORD=$(DEV_DB_PASSWORD) \
+	DB_NAME=$(DEV_DB_NAME) \
+	DB_USER=$(DEV_DB_USER) \
+	ARANGO_PASSWORD=$(DEV_ARANGO_PASSWORD) \
+	REDIS_PASSWORD=$(DEV_REDIS_PASSWORD)
+endef
+
+# Helper function to wait for services
+define wait_for_services
+	@echo "Waiting for services to be ready..."
+	@sleep 10
+endef
+
 .PHONY: dev-build
 dev-build:
 	docker-compose -f $(DEV_COMPOSE_FILE) build app
@@ -18,12 +33,7 @@ dev-build:
 .PHONY: dev-up
 dev-up:
 	@echo "Starting development environment..."
-	DB_PASSWORD=$(DEV_DB_PASSWORD) \
-	DB_NAME=$(DEV_DB_NAME) \
-	DB_USER=$(DEV_DB_USER) \
-	ARANGO_PASSWORD=$(DEV_ARANGO_PASSWORD) \
-	REDIS_PASSWORD=$(DEV_REDIS_PASSWORD) \
-	docker-compose -f $(DEV_COMPOSE_FILE) up -d app
+	$(call set_dev_env_vars) docker-compose -f $(DEV_COMPOSE_FILE) up -d app
 
 .PHONY: dev-build-up
 dev-build-up: dev-build dev-up
@@ -49,35 +59,17 @@ dev-ps:
 .PHONY: dev-create
 dev-create:
 	@echo "Starting database creation..."
-	DB_PASSWORD=$(DEV_DB_PASSWORD) \
-	DB_NAME=$(DEV_DB_NAME) \
-	DB_USER=$(DEV_DB_USER) \
-	docker-compose -f $(DEV_COMPOSE_FILE) up -d postgres
-	ARANGO_PASSWORD=$(DEV_ARANGO_PASSWORD) \
-	docker-compose -f $(DEV_COMPOSE_FILE) up -d arango
-	sleep 10
-	DB_PASSWORD=$(DEV_DB_PASSWORD) \
-	DB_NAME=$(DEV_DB_NAME) \
-	DB_USER=$(DEV_DB_USER) \
-	ARANGO_PASSWORD=$(DEV_ARANGO_PASSWORD) \
-	docker-compose -f $(DEV_COMPOSE_FILE) up --build db-creator
+	$(call set_dev_env_vars) docker-compose -f $(DEV_COMPOSE_FILE) up -d postgres arango
+	$(call wait_for_services)
+	$(call set_dev_env_vars) docker-compose -f $(DEV_COMPOSE_FILE) up --build db-creator
 
 
 .PHONY: dev-migrate
 dev-migrate:
 	@echo "Starting migration..."
-	DB_PASSWORD=$(DEV_DB_PASSWORD) \
-	DB_NAME=$(DEV_DB_NAME) \
-	DB_USER=$(DEV_DB_USER) \
-	docker-compose -f $(DEV_COMPOSE_FILE) up -d postgres
-	ARANGO_PASSWORD=$(DEV_ARANGO_PASSWORD) \
-	docker-compose -f $(DEV_COMPOSE_FILE) up -d arango
-	sleep 10
-	DB_PASSWORD=$(DEV_DB_PASSWORD) \
-	DB_NAME=$(DEV_DB_NAME) \
-	DB_USER=$(DEV_DB_USER) \
-	ARANGO_PASSWORD=$(DEV_ARANGO_PASSWORD) \
-	docker-compose -f $(DEV_COMPOSE_FILE) up db-migrator
+	$(call set_dev_env_vars) docker-compose -f $(DEV_COMPOSE_FILE) up -d postgres arango
+	$(call wait_for_services)
+	$(call set_dev_env_vars) docker-compose -f $(DEV_COMPOSE_FILE) up db-migrator
 
 .PHONY: dev-clear
 dev-clear:
@@ -102,3 +94,22 @@ gen-proto:
 	--experimental_allow_proto3_optional \
 	--go-grpc_out=./proto \
 	./proto/*.proto
+
+.PHONY: help
+help:
+	@echo ""
+	@echo "Available commands:"
+	@echo "  dev-build      - Build the application container"
+	@echo "  dev-up         - Start the development environment"
+	@echo "  dev-build-up   - Build and start the development environment"
+	@echo "  dev-down       - Stop the development environment"
+	@echo "  dev-logs       - Show logs from all containers"
+	@echo "  dev-app-logs   - Show logs from the app container"
+	@echo "  dev-ps         - List running containers"
+	@echo "  dev-create     - Create and initialize databases"
+	@echo "  dev-migrate    - Run database migrations"
+	@echo "  dev-clear      - Remove all containers and volumes"
+	@echo "  gen-proto      - Generate protobuf code"
+	@echo ""
+
+.DEFAULT_GOAL := help
