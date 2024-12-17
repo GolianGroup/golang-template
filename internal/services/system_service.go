@@ -2,10 +2,7 @@ package services
 
 import (
 	"context"
-	"golang_template/internal/database/arango"
-	"golang_template/internal/database/clickhouse"
-	"golang_template/internal/database/postgres"
-	"golang_template/internal/producers"
+	"golang_template/internal/repositories"
 )
 
 type RepoStatus struct {
@@ -14,52 +11,58 @@ type RepoStatus struct {
 }
 
 type SystemService interface {
-	ReadyCheck(ctx context.Context) map[string]RepoStatus
+	ReadyCheck(ctx context.Context) (map[string]RepoStatus, []error)
 }
 
 type systemService struct {
-	postgresClient 	 postgres.Database
-	clickhouseClient clickhouse.ClickhouseDatabase
-	arangoClient     arango.ArangoDB
-	redisClient     producers.RedisClient
+	systemRepository repositories.SystemRepository
 }
 
-func NewSystemService(postgresClient postgres.Database, clickhouseClient clickhouse.ClickhouseDatabase, arangoClient arango.ArangoDB, redisClient producers.RedisClient) SystemService {
-	return &systemService{postgresClient: postgresClient, clickhouseClient: clickhouseClient, arangoClient: arangoClient, redisClient: redisClient}
+func NewSystemService(systemRepository repositories.SystemRepository) SystemService {
+	return &systemService{systemRepository: systemRepository}
 }
 
-func (s *systemService) ReadyCheck(ctx context.Context) map[string]RepoStatus {
+func (s *systemService) ReadyCheck(ctx context.Context) (map[string]RepoStatus, []error) {
 
 	statuses := make(map[string]RepoStatus)
+	var errors []error
 
 	// Check Postgres
-	if err := s.postgresClient.DB().Ping(); err != nil {
+	if err := s.systemRepository.DBPing(ctx); err != nil {
 		statuses["postgres"] = RepoStatus{Healthy: false, Error: err}
+		errors = append(errors, err)
 	} else {
 		statuses["postgres"] = RepoStatus{Healthy: true, Error: nil}
 	}
 
 	// Check Clickhouse
-	if err := s.clickhouseClient.Ping(ctx); err != nil {
+	if err := s.systemRepository.ClickhousePing(ctx); err != nil {
 		statuses["clickhouse"] = RepoStatus{Healthy: false, Error: err}
+		errors = append(errors, err)
 	} else {
 		statuses["clickhouse"] = RepoStatus{Healthy: true, Error: nil}
 	}
 
 	// Check ArangoDB
-	if err := s.arangoClient.Ping(ctx); err != nil {
+	if err := s.systemRepository.ArangoPing(ctx); err != nil {
 		statuses["arango"] = RepoStatus{Healthy: false, Error: err}
+		errors = append(errors, err)
 	} else {
 		statuses["arango"] = RepoStatus{Healthy: true, Error: nil}
 	}
 
 	// Check Redis
-	if err := s.redisClient.RedisStorage().Conn().Ping(ctx).Err(); err != nil {
+	if err := s.systemRepository.RedisPing(ctx); err != nil {
 		statuses["redis"] = RepoStatus{Healthy: false, Error: err}
+		errors = append(errors, err)
 	} else {
 		statuses["redis"] = RepoStatus{Healthy: true, Error: nil}
 	}
 
-	return statuses
+	if len(errors) > 0 {
+		return statuses, errors
+	}
+
+	return statuses, nil
 
 }

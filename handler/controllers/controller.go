@@ -24,7 +24,7 @@ func NewControllers(s services.Service, logger logging.Logger) Controllers {
 	userController := NewUserController(s.UserService(), logger)
 	videoController := NewVideoController(s.VideoService())
 	rpcServiceController := NewRpcServiceController(s.RpcServiceService(), logger)
-	systemController := NewSystemController()
+	systemController := NewSystemController(s.SystemService(), logger)
 	return &controllers{
 		userController:  userController,
 		videoController: videoController,

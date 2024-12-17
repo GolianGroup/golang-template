@@ -19,7 +19,7 @@ func NewSystemRouter(controller controllers.SystemController) SystemRouter {
 }
 
 func (r *systemRouter) AddRoutes(router fiber.Router) {
-	router.Get("/health", r.Controller.HealthCheck())
+	router.Get("/api/health", r.Controller.HealthCheck)
 
-	router.Get("/health/ready", r.Controller.ReadyCheck())
+	router.Get("/health/ready", r.Controller.ReadyCheck)
 }
