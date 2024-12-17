@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	dao "golang_template/handler/daos"
 	dto "golang_template/handler/dtos"
 	"golang_template/internal/mocks"
 	"golang_template/internal/repositories/models"
@@ -36,7 +35,7 @@ func TestVideoService(t *testing.T) {
 		video, err := service.GetVideo("123")
 		require.NoError(t, err)
 
-		assert.IsType(t, &dao.Video{}, video)
+		assert.IsType(t, &models.Video{}, video)
 	})
 
 	t.Run("Failed to get video by key", func(t *testing.T) {
@@ -76,7 +75,7 @@ func TestVideoService(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, err, nil)
-		assert.IsType(t, &dao.Video{}, video)
+		assert.IsType(t, &models.Video{}, video)
 	})
 
 	t.Run("Failed to update video", func(t *testing.T) {
@@ -114,7 +113,7 @@ func TestVideoService(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, err, nil)
-		assert.IsType(t, &dao.VideoByName{}, video)
+		assert.IsType(t, &models.Video{}, video)
 	})
 
 	t.Run("Failed to get video by name", func(t *testing.T) {

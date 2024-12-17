@@ -1,18 +1,17 @@
 package services
 
 import (
-	dao "golang_template/handler/daos"
 	dto "golang_template/handler/dtos"
 	"golang_template/internal/repositories"
 	"golang_template/internal/repositories/models"
 )
 
 type VideoService interface {
-	GetVideo(key string) (*dao.Video, error)
+	GetVideo(key string) (*models.Video, error)
 	CreateVideo(video dto.Video) error
-	UpdateVideo(videoUpdate dto.VideoUpdate) (*dao.Video, error)
+	UpdateVideo(videoUpdate dto.VideoUpdate) (*models.Video, error)
 	DeleteVideo(key string) error
-	GetVideoByName(name string) (*dao.VideoByName, error)
+	GetVideoByName(name string) (*models.Video, error)
 }
 
 type videoService struct {
@@ -25,23 +24,23 @@ func NewVideoService(videoRepository repositories.VideoRepository) VideoService 
 	}
 }
 
-func (s videoService) GetVideo(key string) (*dao.Video, error) {
+func (s videoService) GetVideo(key string) (*models.Video, error) {
 	foundVideo, err := s.videoRepository.Get(key)
 	if err != nil {
 		return nil, err
 	}
 
-	video := dao.Video{
-		Key:         foundVideo.Key,
-		Publishable: foundVideo.Publishable,
-		Categories:  foundVideo.Categories,
-		Description: foundVideo.Description,
-		Name:        foundVideo.Name,
-		Views:       foundVideo.Views,
-		Type:        foundVideo.Type,
-	}
+	// video := dao.Video{
+	// 	Key:         foundVideo.Key,
+	// 	Publishable: foundVideo.Publishable,
+	// 	Categories:  foundVideo.Categories,
+	// 	Description: foundVideo.Description,
+	// 	Name:        foundVideo.Name,
+	// 	Views:       foundVideo.Views,
+	// 	Type:        foundVideo.Type,
+	// }
 
-	return &video, nil
+	return foundVideo, nil
 }
 
 func (s videoService) CreateVideo(video dto.Video) error {
@@ -60,7 +59,7 @@ func (s videoService) CreateVideo(video dto.Video) error {
 	return nil
 }
 
-func (s videoService) UpdateVideo(videoUpdate dto.VideoUpdate) (*dao.Video, error) {
+func (s videoService) UpdateVideo(videoUpdate dto.VideoUpdate) (*models.Video, error) {
 	updateVideo := models.Video{
 		Key:         videoUpdate.Key,
 		Categories:  videoUpdate.Categories,
@@ -73,17 +72,17 @@ func (s videoService) UpdateVideo(videoUpdate dto.VideoUpdate) (*dao.Video, erro
 		return nil, err
 	}
 
-	video := dao.Video{
-		Key:         updatedVideo.Key,
-		Publishable: updatedVideo.Publishable,
-		Categories:  updatedVideo.Categories,
-		Description: updatedVideo.Description,
-		Name:        updatedVideo.Name,
-		Views:       updatedVideo.Views,
-		Type:        updatedVideo.Type,
-	}
+	// video := dao.Video{
+	// 	Key:         updatedVideo.Key,
+	// 	Publishable: updatedVideo.Publishable,
+	// 	Categories:  updatedVideo.Categories,
+	// 	Description: updatedVideo.Description,
+	// 	Name:        updatedVideo.Name,
+	// 	Views:       updatedVideo.Views,
+	// 	Type:        updatedVideo.Type,
+	// }
 
-	return &video, nil
+	return updatedVideo, nil
 }
 
 func (s videoService) DeleteVideo(key string) error {
@@ -94,20 +93,20 @@ func (s videoService) DeleteVideo(key string) error {
 	return nil
 }
 
-func (s videoService) GetVideoByName(name string) (*dao.VideoByName, error) {
+func (s videoService) GetVideoByName(name string) (*models.Video, error) {
 	foundVideo, err := s.videoRepository.GetByName(name)
 	if err != nil {
 		return nil, err
 	}
 
-	video := dao.VideoByName{
-		Publishable: foundVideo.Publishable,
-		Categories:  foundVideo.Categories,
-		Description: foundVideo.Description,
-		Name:        foundVideo.Name,
-		Views:       foundVideo.Views,
-		Type:        foundVideo.Type,
-	}
+	// video := dao.VideoByName{
+	// 	Publishable: foundVideo.Publishable,
+	// 	Categories:  foundVideo.Categories,
+	// 	Description: foundVideo.Description,
+	// 	Name:        foundVideo.Name,
+	// 	Views:       foundVideo.Views,
+	// 	Type:        foundVideo.Type,
+	// }
 
-	return &video, nil
+	return foundVideo, nil
 }
