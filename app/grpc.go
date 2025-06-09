@@ -5,8 +5,11 @@ import (
 	"golang_template/internal/logging"
 	rpc_service "golang_template/proto"
 
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+
+	grpc_client "golang_template/handler/grpc/client"
 )
 
 func (a *application) InitGRPCServer(controller controllers.Controllers, logger logging.Logger) *grpc.Server {
@@ -19,4 +22,8 @@ func (a *application) InitGRPCServer(controller controllers.Controllers, logger 
 	}
 
 	return grpcServer
+}
+
+func (a *application) InitGRPCClient(logger *zap.Logger) grpc_client.HelloClient {
+	return grpc_client.NewHelloClient(a.config, logger)
 }

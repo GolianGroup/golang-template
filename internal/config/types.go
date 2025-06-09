@@ -2,17 +2,18 @@ package config
 
 // Config holds all configuration for the application
 type Config struct {
-	Server     ServerConfig     `mapstructure:"server" validate:"required"`
-	DB         DatabaseConfig   `mapstructure:"db" validate:"required"`
-	Redis      RedisConfig      `mapstructure:"redis" validate:"required"`
-	JWT        JWTConfig        `mapstructure:"jwt" validate:"required"`
-	Logger     LoggerConfig     `mapstructure:"logger" validate:"required"`
-	ArangoDB   ArangoConfig     `mapstructure:"arango" validate:"required"`
-	Tracer     TracerConfig     `mapstructure:"tracer" validate:"required"`
-	LogLevel   string           `mapstructure:"log_level" validate:"required,oneof=debug info warn error"`
-	Clickhouse ClickhouseConfig `mapstructure:"clickhouse" validate:"required"`
-	GRPC       GRPCConfig      `mapstructure:"grpc" validate:"required"`
-	Environment string          `mapstructure:"environment" validate:"required,oneof=development production testing"`
+	Server      ServerConfig     `mapstructure:"server" validate:"required"`
+	DB          DatabaseConfig   `mapstructure:"db" validate:"required"`
+	Redis       RedisConfig      `mapstructure:"redis" validate:"required"`
+	JWT         JWTConfig        `mapstructure:"jwt" validate:"required"`
+	Logger      LoggerConfig     `mapstructure:"logger" validate:"required"`
+	ArangoDB    ArangoConfig     `mapstructure:"arango" validate:"required"`
+	Tracer      TracerConfig     `mapstructure:"tracer" validate:"required"`
+	LogLevel    string           `mapstructure:"log_level" validate:"required,oneof=debug info warn error"`
+	Clickhouse  ClickhouseConfig `mapstructure:"clickhouse" validate:"required"`
+	GRPC        GRPCConfig       `mapstructure:"grpc" validate:"required"`
+	Environment string           `mapstructure:"environment" validate:"required,oneof=development production testing"`
+	GRPCclient  GRPCclientConfig `mapstructure:"grpc_client" validate:"required"`
 }
 
 // ServerConfig holds all server related configuration
@@ -111,4 +112,12 @@ type TracerConfig struct {
 type GRPCConfig struct {
 	Host string `mapstructure:"grpc_host" validate:"required,hostname|ip"` // gRPC server host
 	Port string `mapstructure:"grpc_port" validate:"required,number"`      // gRPC server port
+}
+
+type GRPCclientConfig struct {
+	Host               string `mapstructure:"host" validate:"required"`
+	Port               string `mapstructure:"port" validate:"required"`
+	MaxRetries         int    `mapstructure:"max_retries" validate:"required,gte=0"`
+	PerRetryTimeout    int    `mapstructure:"per_retry_timeout" validate:"required,gte=0"`
+	BackoffExponential int    `mapstructure:"backoff_exponential" validate:"required,gte=0"`
 }
